@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-user-clock text-warning fa-5x"></i>
+                    </div>
+                    <h2 class="mb-3">Account Pending Assignment</h2>
+                    <p class="lead mb-4">
+                        Your account has been created successfully, but you haven't been assigned to a location yet.
+                    </p>
+                    <p class="mb-4">
+                        An administrator will assign your account to a location soon. You'll then have access to the agent dashboard and be able to use the system.
+                    </p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        If your account has been pending for more than 24 hours, please contact your supervisor or the system administrator.
+                    </div>
+                    <a href="{% url 'logout' %}" class="btn btn-secondary mt-3">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Sign Out
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

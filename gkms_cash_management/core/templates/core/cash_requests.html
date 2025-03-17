@@ -1,0 +1,606 @@
+{% extends 'core/base.html' %}
+
+{% block extra_css %}
+<style>
+/* Cash Request Styles */
+.request-header {
+  background: linear-gradient(135deg, #3a0ca3, #4361ee);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  box-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
+}
+
+.request-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJkb3RzIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNCIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNkb3RzKSIgLz48L3N2Zz4=');
+  opacity: 0.6;
+}
+
+.request-header .accent-light {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  z-index: 0;
+  animation: glow 6s infinite;
+}
+
+@keyframes glow {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+.request-header .accent-light:nth-child(1) {
+  top: -30px;
+  right: 10%;
+  background: #f72585;
+}
+
+.request-header .accent-light:nth-child(2) {
+  bottom: -30px;
+  left: 15%;
+  background: #4cc9f0;
+  animation-delay: 2s;
+}
+
+.request-header .content {
+  position: relative;
+  z-index: 1;
+}
+
+.request-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.request-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 600px;
+}
+
+.request-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.request-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.request-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(to bottom, #4361ee, #4cc9f0);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 50rem;
+}
+
+.status-badge.pending {
+  background-color: rgba(252, 163, 17, 0.1);
+  color: #fca311;
+}
+
+.status-badge.approved {
+  background-color: rgba(76, 201, 240, 0.1);
+  color: #4cc9f0;
+}
+
+.status-badge.delivered {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: #4361ee;
+}
+
+.status-badge.rejected {
+  background-color: rgba(247, 37, 133, 0.1);
+  color: #f72585;
+}
+
+.request-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-item {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.detail-item .label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.detail-item .value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.request-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+  margin-top: 2rem;
+}
+
+.timeline:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: linear-gradient(to bottom, #4361ee, #4cc9f0);
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.timeline-item:before {
+  content: '';
+  position: absolute;
+  left: -2rem;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4361ee;
+  border: 2px solid white;
+  box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2);
+}
+
+.timeline-item .timestamp {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-item .content {
+  font-size: 0.875rem;
+  color: #212529;
+}
+
+.filter-section {
+  margin-bottom: 2rem;
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.btn-white {
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #495057;
+  transition: all 0.3s;
+}
+
+.btn-white:hover {
+  background-color: #f8f9fa;
+  color: #212529;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="request-header">
+    <div class="accent-light"></div>
+    <div class="accent-light"></div>
+    <div class="content">
+      <h1>Cash Requests</h1>
+      <p>Request and manage cash deliveries to your locations. Track the status of all cash requests in one place.</p>
+      
+      {% if user.is_staff %}
+      <button class="btn btn-light mt-3" data-bs-toggle="modal" data-bs-target="#newRequestModal">
+        <i class="fas fa-plus me-2"></i>New Request
+      </button>
+      {% endif %}
+    </div>
+  </div>
+  
+  <div class="filter-section">
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        <label class="form-label">Status</label>
+        <select id="status-filter" class="form-select">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="delivered">Delivered</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="col-md-3 mb-3">
+        <label class="form-label">Location</label>
+        <select id="location-filter" class="form-select">
+          <option value="">All Locations</option>
+          {% for location in locations %}
+            <option value="{{ location.name }}">{{ location.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 mb-3">
+        <label class="form-label">Date Range</label>
+        <input type="text" id="date-filter" class="form-control" placeholder="Select date range">
+      </div>
+      <div class="col-md-3 mb-3">
+        <label class="form-label">Search</label>
+        <input type="text" id="search-filter" class="form-control" placeholder="Search requests...">
+      </div>
+    </div>
+  </div>
+  
+  {% if requests %}
+  {% for request in requests %}
+  <div class="request-card">
+    <div class="row">
+      <div class="col-md-8">
+        <h4 class="mb-3">
+          Request #{{ request.id }} - ${{ request.amount|floatformat:2 }}
+          <span class="status-badge {{ request.status }}">{{ request.status|title }}</span>
+        </h4>
+        
+        <div class="request-details mb-4">
+          <div class="detail-item">
+            <div class="label">Location</div>
+            <div class="value">{{ request.location.name }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Requested By</div>
+            <div class="value">{{ request.requested_by.username }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Request Date</div>
+            <div class="value">{{ request.request_date|date:"M d, Y" }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Delivery Date</div>
+            <div class="value">{{ request.delivery_date|date:"M d, Y" }}</div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <h6>Reason</h6>
+          <p>{{ request.reason }}</p>
+        </div>
+        
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timestamp">{{ request.request_date|date:"F j, Y g:i A" }}</div>
+            <div class="content">Request created by {{ request.requested_by.username }}</div>
+          </div>
+          
+          {% if request.status != 'pending' %}
+          <div class="timeline-item">
+            <div class="timestamp">{{ request.processed_date|date:"F j, Y g:i A" }}</div>
+            <div class="content">
+              {% if request.status == 'approved' %}
+                Request approved by {{ request.processed_by.username }}
+              {% elif request.status == 'rejected' %}
+                Request rejected by {{ request.processed_by.username }}
+              {% elif request.status == 'delivered' %}
+                Cash delivered by {{ request.delivered_by.username }}
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+          
+          {% if request.status == 'delivered' %}
+          <div class="timeline-item">
+            <div class="timestamp">{{ request.delivery_date|date:"F j, Y g:i A" }}</div>
+            <div class="content">
+              Cash delivery received and confirmed
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="detail-item mb-3">
+          <div class="label">Status</div>
+          <div class="value">{{ request.status|title }}</div>
+        </div>
+        
+        {% if request.status == 'pending' and request.user.is_staff %}
+        <div class="request-actions">
+          <button class="btn btn-success" onclick="approveRequest({{ request.id }})">
+            <i class="fas fa-check me-2"></i>Approve
+          </button>
+          <button class="btn btn-danger" onclick="rejectRequest({{ request.id }})">
+            <i class="fas fa-times me-2"></i>Reject
+          </button>
+        </div>
+        {% elif request.status == 'approved' and request.user.is_staff %}
+        <div class="request-actions">
+          <button class="btn btn-primary" onclick="markAsDelivered({{ request.id }})">
+            <i class="fas fa-truck me-2"></i>Mark as Delivered
+          </button>
+        </div>
+        {% endif %}
+        
+        <div class="mt-4">
+          <button class="btn btn-white w-100" onclick="viewRequestDetails({{ request.id }})">
+            <i class="fas fa-eye me-2"></i>View Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="text-center my-5">
+    <div style="font-size: 4rem; color: #e9ecef; margin-bottom: 1.5rem;">
+      <i class="fas fa-inbox"></i>
+    </div>
+    <h3>No Cash Requests Yet</h3>
+    <p class="text-muted">Create your first cash request to get started.</p>
+    {% if user.is_staff %}
+    <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#newRequestModal">
+      <i class="fas fa-plus me-2"></i>New Request
+    </button>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- New Request Modal -->
+<div class="modal fade" id="newRequestModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Cash Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="{% url 'create_cash_request' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Location</label>
+                <select name="location" class="form-select" required>
+                  {% for location in locations %}
+                    <option value="{{ location.id }}">{{ location.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Amount</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" name="amount" class="form-control" required>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Reason for Request</label>
+            <textarea name="reason" class="form-control" rows="3" required></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Requested Delivery Date</label>
+            <input type="date" name="delivery_date" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize date picker for filters
+  if (typeof flatpickr !== 'undefined') {
+    flatpickr("#date-filter", {
+      mode: "range",
+      dateFormat: "Y-m-d",
+      onChange: function(selectedDates, dateStr, instance) {
+        filterRequests();
+      }
+    });
+  }
+  
+  // Add event listeners to filters
+  document.getElementById('status-filter').addEventListener('change', filterRequests);
+  document.getElementById('location-filter').addEventListener('change', filterRequests);
+  document.getElementById('search-filter').addEventListener('input', filterRequests);
+  
+  // Animate request cards on page load
+  document.querySelectorAll('.request-card').forEach((card, index) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    }, 100 + (index * 100));
+  });
+});
+
+function filterRequests() {
+  // This function would filter the requests based on selected filters
+  console.log('Filtering requests...');
+  
+  const statusFilter = document.getElementById('status-filter').value;
+  const locationFilter = document.getElementById('location-filter').value;
+  const searchFilter = document.getElementById('search-filter').value.toLowerCase();
+  const dateFilter = document.getElementById('date-filter').value;
+  
+  // In a real application, this would send an AJAX request or filter client-side
+  // For this example, we'll simulate the filtering effect
+  document.querySelectorAll('.request-card').forEach(card => {
+    let showCard = true;
+    
+    // Status filter
+    if (statusFilter) {
+      const statusBadge = card.querySelector('.status-badge');
+      if (statusBadge && !statusBadge.classList.contains(statusFilter)) {
+        showCard = false;
+      }
+    }
+    
+    // Location filter
+    if (locationFilter) {
+      const locationElement = card.querySelector('.detail-item .value');
+      if (locationElement && locationElement.textContent !== locationFilter) {
+        showCard = false;
+      }
+    }
+    
+    // Search filter
+    if (searchFilter && !card.textContent.toLowerCase().includes(searchFilter)) {
+      showCard = false;
+    }
+    
+    // Apply visibility
+    if (showCard) {
+      card.style.display = '';
+      
+      // Animate in if previously hidden
+      if (card.style.opacity === '0') {
+        setTimeout(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, 100);
+      }
+    } else {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        card.style.display = 'none';
+      }, 300);
+    }
+  });
+}
+
+function approveRequest(id) {
+  // Approve a request
+  console.log(`Approving request ${id}`);
+  
+  if (confirm('Are you sure you want to approve this request?')) {
+    // In a real application, this would send an AJAX request to update the status
+    // For now, just simulate a POST request with a form submission
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/cash-requests/${id}/approve/`;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    form.appendChild(csrfInput);
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+function rejectRequest(id) {
+  // Reject a request
+  console.log(`Rejecting request ${id}`);
+  
+  if (confirm('Are you sure you want to reject this request?')) {
+    // Similar to approve, but with different endpoint
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/cash-requests/${id}/reject/`;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    form.appendChild(csrfInput);
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+function markAsDelivered(id) {
+  // Mark a request as delivered
+  console.log(`Marking request ${id} as delivered`);
+  
+  if (confirm('Are you sure you want to mark this request as delivered?')) {
+    // Similar to approve, but with different endpoint
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/cash-requests/${id}/deliver/`;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    form.appendChild(csrfInput);
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+function viewRequestDetails(id) {
+  // View detailed information about a request
+  console.log(`Viewing details for request ${id}`);
+  
+  // In a real application, this would navigate to a detailed view page
+  window.location.href = `/cash-requests/${id}/`;
+}
+</script>
+{% endblock %} 

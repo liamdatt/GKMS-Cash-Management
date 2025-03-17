@@ -1,0 +1,306 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Review EOD Report{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Review EOD Report</h1>
+        <div class="text-end">
+            <h5 class="mb-0">{{ report.location.name }}</h5>
+            <p class="text-muted">{{ report.processing_date|date:"F j, Y" }}</p>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Report Status Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header
+            {% if report.status == 'pending' %}bg-warning
+            {% elif report.status == 'approved' %}bg-success
+            {% elif report.status == 'rejected' %}bg-danger{% endif %} text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    Report Status: 
+                    {% if report.status == 'pending' %}
+                        Pending Review
+                    {% elif report.status == 'approved' %}
+                        Approved
+                    {% elif report.status == 'rejected' %}
+                        Rejected
+                    {% endif %}
+                </h5>
+                <div>
+                    <small>Submitted by: {{ report.submitted_by.get_full_name|default:report.submitted_by.username }}</small><br>
+                    <small>{{ report.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if report.status != 'pending' %}
+            <div class="alert 
+                {% if report.status == 'approved' %}alert-success
+                {% elif report.status == 'rejected' %}alert-danger{% endif %}">
+                <p><strong>Reviewed by:</strong> {{ report.reviewed_by.get_full_name|default:report.reviewed_by.username }}</p>
+                <p><strong>Review notes:</strong> {{ report.review_notes|default:"No notes provided." }}</p>
+                <p><strong>Review date:</strong> {{ report.updated_at|date:"F j, Y H:i" }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Cash Position Summary Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Cash Position Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Opening Balance</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="text" class="form-control" value="{{ report.opening_balance|floatformat:2 }}" readonly>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Cash Delivered Today</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="text" class="form-control" value="{{ report.cash_delivered|floatformat:2 }}" readonly>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Expected Balance</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="text" class="form-control" value="{{ expected_balance|floatformat:2 }}" readonly>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Actual Closing Balance</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="text" class="form-control" value="{{ report.closing_balance|floatformat:2 }}" readonly>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1">Variance:</p>
+                                    <h3 class="mb-0">${{ report.variance|floatformat:2 }}</h3>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <span class="badge 
+                                        {% if report.variance > 0 %}bg-warning
+                                        {% elif report.variance < 0 %}bg-danger
+                                        {% else %}bg-success{% endif %}">
+                                        {% if report.variance > 0 %}
+                                            Overage
+                                        {% elif report.variance < 0 %}
+                                            Shortage
+                                        {% else %}
+                                            Balanced
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Denomination Breakdown -->
+    <div class="row">
+        <!-- JMD Denomination -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">JMD Denomination Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Denomination</th>
+                                    <th>Count</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for adj in jmd_denominations %}
+                                <tr>
+                                    <td>{{ adj.description }}</td>
+                                    <td>{{ adj.count }}</td>
+                                    <td>${{ adj.amount|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No JMD denomination data available.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-active">
+                                    <th>Total JMD</th>
+                                    <th></th>
+                                    <th>${{ jmd_total|floatformat:2 }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- USD Denomination -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">USD Denomination Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Denomination</th>
+                                    <th>Count</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for adj in usd_denominations %}
+                                <tr>
+                                    <td>{{ adj.description }}</td>
+                                    <td>{{ adj.count }}</td>
+                                    <td>${{ adj.amount|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No USD denomination data available.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-active">
+                                    <th>Total USD</th>
+                                    <th></th>
+                                    <th>${{ usd_total|floatformat:2 }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Teller Balances -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning">
+            <h5 class="card-title mb-0">Teller Balances</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Teller Name</th>
+                            <th>JMD Amount</th>
+                            <th>USD Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for teller in teller_balances %}
+                        <tr>
+                            <td>{{ teller.teller_name }}</td>
+                            <td>${{ teller.jmd_amount|floatformat:2 }}</td>
+                            <td>${{ teller.usd_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No teller balance data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-active">
+                            <th>Total</th>
+                            <th>${{ teller_jmd_total|floatformat:2 }}</th>
+                            <th>${{ teller_usd_total|floatformat:2 }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Agent Notes -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="card-title mb-0">Agent Notes</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <p>{{ report.notes|default:"No notes provided." }}</p>
+            </div>
+        </div>
+    </div>
+    
+    {% if report.status == 'pending' %}
+    <!-- Review Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Review Decision</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="review_notes" class="form-label">Review Notes</label>
+                    <textarea class="form-control" id="review_notes" name="review_notes" rows="3" 
+                              placeholder="Enter any notes regarding your decision"></textarea>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">Back to List</button>
+                    <div>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger me-2">Reject Report</button>
+                        <button type="submit" name="action" value="approve" class="btn btn-success">Approve Report</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="d-flex justify-content-between">
+        <a href="{% url 'view_eod_reports' %}" class="btn btn-outline-secondary">Back to List</a>
+        
+        {% if perms.core.change_eodreport %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="action" value="reopen" class="btn btn-warning">Reopen for Review</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -1,0 +1,607 @@
+{% extends 'core/base.html' %}
+
+{% block extra_css %}
+<style>
+/* Analytics Dashboard Styles */
+.analytics-header {
+  background: linear-gradient(135deg, #3a0ca3, #4361ee);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  color: white;
+}
+
+.analytics-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJkb3RzIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuMyIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNkb3RzKSIgLz48L3N2Zz4=');
+  opacity: 0.5;
+}
+
+.analytics-header .content {
+  position: relative;
+  z-index: 1;
+}
+
+.analytics-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  height: 100%;
+  transition: all 0.3s;
+}
+
+.analytics-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.analytics-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.analytics-card-header h5 {
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.analytics-card-header h5 i {
+  color: #4361ee;
+  margin-right: 0.75rem;
+}
+
+.analytics-stat {
+  text-align: center;
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: all 0.3s;
+}
+
+.analytics-stat:hover {
+  background: #f0f1f2;
+  transform: translateY(-5px);
+}
+
+.analytics-stat .icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.analytics-stat .icon.primary {
+  background: linear-gradient(135deg, #4361ee, #3a0ca3);
+}
+
+.analytics-stat .icon.success {
+  background: linear-gradient(135deg, #4cc9f0, #4895ef);
+}
+
+.analytics-stat .icon.warning {
+  background: linear-gradient(135deg, #fca311, #e76f51);
+}
+
+.analytics-stat .icon.danger {
+  background: linear-gradient(135deg, #f72585, #7209b7);
+}
+
+.analytics-stat .value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #212529;
+  line-height: 1.2;
+}
+
+.analytics-stat .label {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.chart-container {
+  height: 300px;
+  position: relative;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-safe {
+  background-color: #4cc9f0;
+}
+
+.status-warning {
+  background-color: #fca311;
+}
+
+.status-danger {
+  background-color: #f72585;
+}
+
+.locations-table th {
+  padding: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.locations-table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.locations-table .progress {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.date-filter-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.date-filter-container label {
+  margin-right: 1rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.date-filter-container select,
+.date-filter-container input {
+  margin-right: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s;
+}
+
+.date-filter-container select:focus,
+.date-filter-container input:focus {
+  outline: none;
+  border-color: #4361ee;
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="analytics-header">
+    <div class="content">
+      <h1>Cash Analytics</h1>
+      <p>Comprehensive analytics and reporting for cash management across all locations</p>
+    </div>
+  </div>
+  
+  <div class="date-filter-container">
+    <label>Date Range:</label>
+    <input type="text" id="date-filter" placeholder="Select date range" class="form-control" style="max-width: 250px;">
+    
+    <label>Location:</label>
+    <select id="location-filter" class="form-control" style="max-width: 200px;">
+      <option value="">All Locations</option>
+      {% for location in locations %}
+        <option value="{{ location.id }}">{{ location.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 mb-4">
+      <div class="analytics-stat">
+        <div class="icon primary">
+          <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <div class="value">${{ total_cash_position|floatformat:2 }}</div>
+        <div class="label">Total Cash Position</div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-4">
+      <div class="analytics-stat">
+        <div class="icon success">
+          <i class="fas fa-truck"></i>
+        </div>
+        <div class="value">${{ cash_delivered_today|floatformat:2 }}</div>
+        <div class="label">Cash Delivered Today</div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-4">
+      <div class="analytics-stat">
+        <div class="icon warning">
+          <i class="fas fa-arrow-right"></i>
+        </div>
+        <div class="value">${{ cash_payouts_today|floatformat:2 }}</div>
+        <div class="label">Cash Payouts Today</div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-4">
+      <div class="analytics-stat">
+        <div class="icon danger">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="value">{{ locations_over_limit }}</div>
+        <div class="label">Locations Over Limit</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <!-- Cash Trend Chart -->
+    <div class="col-md-8 mb-4">
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <h5><i class="fas fa-chart-line"></i>Cash Position Trend</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Export Data</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-expand-arrows-alt me-2"></i>Full Screen</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sync me-2"></i>Refresh</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="cashTrendChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Cash Composition Pie Chart -->
+    <div class="col-md-4 mb-4">
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <h5><i class="fas fa-chart-pie"></i>Cash Composition</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Export Data</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-expand-arrows-alt me-2"></i>Full Screen</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sync me-2"></i>Refresh</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="cashCompositionChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <!-- Locations Table -->
+    <div class="col-md-8 mb-4">
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <h5><i class="fas fa-map-marker-alt"></i>Locations Cash Status</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Export Data</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sync me-2"></i>Refresh</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="table-responsive locations-table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>Cash Position</th>
+                <th>Limit</th>
+                <th>Utilization</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for location in locations %}
+              <tr>
+                <td>{{ location.name }}</td>
+                <td>${{ location.current_cash_position|floatformat:2 }}</td>
+                <td>${{ location.working_day_limit|floatformat:2 }}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="progress flex-grow-1 me-2">
+                      {% if location.cash_position_percentage < 60 %}
+                        <div class="progress-bar bg-info" style="width: {{ location.cash_position_percentage }}%"></div>
+                      {% elif location.cash_position_percentage < 85 %}
+                        <div class="progress-bar bg-warning" style="width: {{ location.cash_position_percentage }}%"></div>
+                      {% else %}
+                        <div class="progress-bar bg-danger" style="width: {{ location.cash_position_percentage }}%"></div>
+                      {% endif %}
+                    </div>
+                    <span>{{ location.cash_position_percentage }}%</span>
+                  </div>
+                </td>
+                <td>
+                  {% if location.cash_position_percentage < 60 %}
+                    <span><span class="status-indicator status-safe"></span>Safe</span>
+                  {% elif location.cash_position_percentage < 85 %}
+                    <span><span class="status-indicator status-warning"></span>Warning</span>
+                  {% else %}
+                    <span><span class="status-indicator status-danger"></span>Danger</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Weekly Cash Flow -->
+    <div class="col-md-4 mb-4">
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <h5><i class="fas fa-exchange-alt"></i>Weekly Cash Flow</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Export Data</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-expand-arrows-alt me-2"></i>Full Screen</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sync me-2"></i>Refresh</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="weeklyFlowChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize date picker for range selection
+  flatpickr("#date-filter", {
+    mode: "range",
+    dateFormat: "Y-m-d",
+    defaultDate: [
+      new Date().setDate(new Date().getDate() - 7),
+      new Date()
+    ],
+    onChange: function(selectedDates, dateStr, instance) {
+      // In a real application, this would trigger an AJAX request to update the charts
+      console.log('Date range changed:', dateStr);
+      // updateCharts(dateStr);
+    }
+  });
+  
+  // Initialize charts
+  initializeCharts();
+  
+  // Add event listener for location filter
+  document.getElementById('location-filter').addEventListener('change', function() {
+    // In a real application, this would trigger an AJAX request to update the charts
+    console.log('Location filter changed:', this.value);
+    // updateCharts(document.getElementById('date-filter').value, this.value);
+  });
+  
+  // Add hover effects to analytics stats
+  document.querySelectorAll('.analytics-stat').forEach(stat => {
+    stat.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-10px)';
+    });
+    
+    stat.addEventListener('mouseleave', function() {
+      this.style.transform = '';
+    });
+  });
+});
+
+function initializeCharts() {
+  // Sample data for charts
+  const dates = [];
+  const cashPositions = [];
+  
+  // Generate 30 days of sample data
+  const now = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    
+    // Random cash position between 50,000 and 150,000
+    const cashPosition = Math.random() * 100000 + 50000;
+    cashPositions.push(cashPosition.toFixed(2));
+  }
+  
+  // Cash Position Trend Chart
+  const trendCtx = document.getElementById('cashTrendChart').getContext('2d');
+  new Chart(trendCtx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: 'Total Cash Position',
+        data: cashPositions,
+        borderColor: '#4361ee',
+        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+        tension: 0.3,
+        fill: true,
+        pointBackgroundColor: '#4361ee',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function(context) {
+              return `Cash Position: $${parseFloat(context.raw).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          beginAtZero: false,
+          ticks: {
+            callback: function(value) {
+              return '$' + value.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short' });
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  // Cash Composition Chart
+  const compositionCtx = document.getElementById('cashCompositionChart').getContext('2d');
+  new Chart(compositionCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Location A', 'Location B', 'Location C', 'Other Locations'],
+      datasets: [{
+        data: [30000, 25000, 20000, 35000],
+        backgroundColor: ['#4361ee', '#4cc9f0', '#fca311', '#f72585'],
+        borderWidth: 0,
+        borderRadius: 5,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            padding: 15
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const value = context.raw;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${context.label}: $${value.toLocaleString('en-US')} (${percentage}%)`;
+            }
+          }
+        }
+      },
+      cutout: '70%'
+    }
+  });
+  
+  // Weekly Cash Flow Chart
+  const flowCtx = document.getElementById('weeklyFlowChart').getContext('2d');
+  new Chart(flowCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [
+        {
+          label: 'Cash In',
+          data: [12000, 19000, 15000, 17000, 22000, 18000, 13000],
+          backgroundColor: '#4cc9f0',
+          borderRadius: 4,
+          borderWidth: 0
+        },
+        {
+          label: 'Cash Out',
+          data: [10000, 17000, 14000, 15000, 19000, 16000, 12000],
+          backgroundColor: '#f72585',
+          borderRadius: 4,
+          borderWidth: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            padding: 15
+          }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function(context) {
+              return `${context.dataset.label}: $${context.raw.toLocaleString('en-US')}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short' });
+            }
+          }
+        }
+      }
+    }
+  });
+}
+</script>
+{% endblock %} 

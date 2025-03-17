@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Debug Profile Information</h2>
+    
+    <h3>Direct AgentProfile Query</h3>
+    <ul>
+    {% for profile in profiles %}
+        <li>
+            Profile ID: {{ profile.id }} - 
+            User: {{ profile.user.username }} (ID: {{ profile.user.id }}) - 
+            Location: {{ profile.location.name }}
+        </li>
+    {% empty %}
+        <li>No profiles found</li>
+    {% endfor %}
+    </ul>
+    
+    <h3>User Query with Related Profiles</h3>
+    <ul>
+    {% for user in users %}
+        <li>
+            User: {{ user.username }} (ID: {{ user.id }}) - 
+            Has Profile Access: {{ user.agentprofile|yesno:"Yes,No" }} -
+            {% if user.agentprofile %}
+                Location: {{ user.agentprofile.location.name }}
+            {% else %}
+                No location assigned
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %} 

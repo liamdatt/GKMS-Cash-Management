@@ -1,0 +1,194 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-money-bill-wave me-2"></i>Request Cash</h1>
+        <p>Request cash delivery for your location</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="fas fa-hand-holding-usd me-2"></i>Cash Request Form</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> Specify the amount of cash needed by denomination
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.delivery_date.id_for_label }}" class="form-label">Delivery Date</label>
+                            {{ form.delivery_date }}
+                            {% if form.delivery_date.errors %}
+                                <div class="text-danger small">{{ form.delivery_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.request_type.id_for_label }}" class="form-label">Request Type</label>
+                            {{ form.request_type }}
+                            {% if form.request_type.errors %}
+                                <div class="text-danger small">{{ form.request_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="mt-4 mb-3">JMD Denominations</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.jmd_5000.id_for_label }}" class="form-label">$5,000 Notes</label>
+                                {{ form.jmd_5000 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.jmd_2000.id_for_label }}" class="form-label">$2,000 Notes</label>
+                                {{ form.jmd_2000 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.jmd_1000.id_for_label }}" class="form-label">$1,000 Notes</label>
+                                {{ form.jmd_1000 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.jmd_500.id_for_label }}" class="form-label">$500 Notes</label>
+                                {{ form.jmd_500 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.jmd_100.id_for_label }}" class="form-label">$100 Notes</label>
+                                {{ form.jmd_100 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.jmd_50.id_for_label }}" class="form-label">$50 Notes</label>
+                                {{ form.jmd_50 }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4 mb-3">USD Denominations</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.usd_100.id_for_label }}" class="form-label">$100 Notes</label>
+                                {{ form.usd_100 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.usd_50.id_for_label }}" class="form-label">$50 Notes</label>
+                                {{ form.usd_50 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.usd_20.id_for_label }}" class="form-label">$20 Notes</label>
+                                {{ form.usd_20 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.usd_10.id_for_label }}" class="form-label">$10 Notes</label>
+                                {{ form.usd_10 }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.usd_1.id_for_label }}" class="form-label">$1 Notes</label>
+                                {{ form.usd_1 }}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="fas fa-calculator me-2"></i>Request Summary</h4>
+                </div>
+                <div class="card-body">
+                    <div id="summary">
+                        <p>Enter your request details to see a summary</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-info-circle me-2"></i>Guidelines</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-calendar me-2 text-primary"></i> Request at least 1 business day ahead
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-clock me-2 text-primary"></i> Requests submitted after 2 PM will be processed the next business day
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-money-bill me-2 text-primary"></i> Keep total cash under your location's insurance limit
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-phone me-2 text-primary"></i> For urgent requests, contact head office directly
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Simple JavaScript to update the summary when inputs change
+document.addEventListener('DOMContentLoaded', function() {
+    const denomInputs = document.querySelectorAll('input[type="number"]');
+    const summaryDiv = document.getElementById('summary');
+    
+    function updateSummary() {
+        let jmdTotal = 0;
+        let usdTotal = 0;
+        
+        // Calculate JMD total
+        jmdTotal += (parseInt(document.getElementById('id_jmd_5000').value || 0) * 5000);
+        jmdTotal += (parseInt(document.getElementById('id_jmd_2000').value || 0) * 2000);
+        jmdTotal += (parseInt(document.getElementById('id_jmd_1000').value || 0) * 1000);
+        jmdTotal += (parseInt(document.getElementById('id_jmd_500').value || 0) * 500);
+        jmdTotal += (parseInt(document.getElementById('id_jmd_100').value || 0) * 100);
+        jmdTotal += (parseInt(document.getElementById('id_jmd_50').value || 0) * 50);
+        
+        // Calculate USD total
+        usdTotal += (parseInt(document.getElementById('id_usd_100').value || 0) * 100);
+        usdTotal += (parseInt(document.getElementById('id_usd_50').value || 0) * 50);
+        usdTotal += (parseInt(document.getElementById('id_usd_20').value || 0) * 20);
+        usdTotal += (parseInt(document.getElementById('id_usd_10').value || 0) * 10);
+        usdTotal += (parseInt(document.getElementById('id_usd_1').value || 0) * 1);
+        
+        // Update summary
+        summaryDiv.innerHTML = `
+            <h5 class="mb-3">Total Request:</h5>
+            <table class="table table-borderless">
+                <tr>
+                    <td><strong>JMD Total:</strong></td>
+                    <td class="text-end">$${jmdTotal.toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td><strong>USD Total:</strong></td>
+                    <td class="text-end">$${usdTotal.toLocaleString()}</td>
+                </tr>
+            </table>
+            <div class="alert alert-primary mt-3">
+                <i class="fas fa-info-circle me-2"></i> Your request will be reviewed by head office before approval.
+            </div>
+        `;
+    }
+    
+    // Add event listeners to all inputs
+    denomInputs.forEach(input => {
+        input.addEventListener('input', updateSummary);
+    });
+    
+    // Initial update
+    updateSummary();
+});
+</script>
+{% endblock %} 

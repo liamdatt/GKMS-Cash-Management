@@ -1,0 +1,305 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}EOD Report Detail{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>
+            EOD Report #{{ report.id }}
+        </h1>
+        <a href="{% url 'admin_view_eod_reports' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Reports
+        </a>
+    </div>
+
+    <!-- Report Overview -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-info-circle me-2"></i>Report Overview
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Processing Date:</th>
+                            <td>{{ report.processing_date|date:"d M Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Location:</th>
+                            <td>{{ report.location.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Agent:</th>
+                            <td>{{ report.agent.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Submitted:</th>
+                            <td>{{ report.created_at|date:"d M Y H:i" }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Closing Balance:</th>
+                            <td>{{ report.closing_balance|floatformat:2 }} JMD</td>
+                        </tr>
+                        <tr>
+                            <th>Funds from BXP/Webex:</th>
+                            <td>{% if report.funds_from_bxp_webex %}{{ report.funds_from_bxp_webex|floatformat:2 }} JMD{% else %}-{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>All Tellers Balanced:</th>
+                            <td>
+                                {% if report.all_tellers_balanced %}
+                                    <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-danger">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Total Variance:</th>
+                            <td>
+                                <span class="{% if report.total_variance < 0 %}text-danger{% elif report.total_variance > 0 %}text-success{% endif %}">
+                                    {{ report.total_variance|floatformat:2 }} JMD
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Courier Information -->
+    {% if report.cash_sent_to_courier %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-truck me-2"></i>Courier Information
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 mb-3">JMD Details</h6>
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Amount:</th>
+                            <td>{% if report.courier_jmd_amount %}{{ report.courier_jmd_amount|floatformat:2 }} JMD{% else %}-{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>Receipt Number:</th>
+                            <td>{{ report.courier_jmd_receipt|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 mb-3">USD Details</h6>
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Amount:</th>
+                            <td>{% if report.courier_usd_amount %}{{ report.courier_usd_amount|floatformat:2 }} USD{% else %}-{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>Receipt Number:</th>
+                            <td>{{ report.courier_usd_receipt|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Denomination Breakdown -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-money-bill-alt me-2"></i>Denomination Breakdown
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- JMD Denominations -->
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 mb-3">JMD Denominations</h6>
+                    {% if jmd_denomination %}
+                        <table class="table">
+                            <tr>
+                                <th>$5,000 x</th>
+                                <td>{{ jmd_denomination.denomination_5000_count }}</td>
+                                <td>= {{ denomination_amounts.jmd_5000_amount|floatformat:2 }} JMD</td>
+                            </tr>
+                            <tr>
+                                <th>$1,000 x</th>
+                                <td>{{ jmd_denomination.denomination_1000_count }}</td>
+                                <td>= {{ denomination_amounts.jmd_1000_amount|floatformat:2 }} JMD</td>
+                            </tr>
+                            <tr>
+                                <th>$500 x</th>
+                                <td>{{ jmd_denomination.denomination_500_count }}</td>
+                                <td>= {{ denomination_amounts.jmd_500_amount|floatformat:2 }} JMD</td>
+                            </tr>
+                            <tr>
+                                <th>$100 x</th>
+                                <td>{{ jmd_denomination.denomination_100_count }}</td>
+                                <td>= {{ denomination_amounts.jmd_100_amount|floatformat:2 }} JMD</td>
+                            </tr>
+                            <tr>
+                                <th>$50 x</th>
+                                <td>{{ jmd_denomination.denomination_50_count }}</td>
+                                <td>= {{ denomination_amounts.jmd_50_amount|floatformat:2 }} JMD</td>
+                            </tr>
+                            <tr>
+                                <th>Coins</th>
+                                <td colspan="2">{{ jmd_denomination.coins_amount|floatformat:2 }} JMD</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <th>Total JMD</th>
+                                <td colspan="2">
+                                    <strong>
+                                        {{ jmd_denomination.get_total|floatformat:2 }} JMD
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    {% else %}
+                        <div class="alert alert-info">No JMD denomination breakdown available.</div>
+                    {% endif %}
+                </div>
+                
+                <!-- USD Denominations -->
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 mb-3">USD Denominations</h6>
+                    {% if usd_denomination %}
+                        <table class="table">
+                            <tr>
+                                <th>$100 x</th>
+                                <td>{{ usd_denomination.denomination_100_count }}</td>
+                                <td>= {{ denomination_amounts.usd_100_amount|floatformat:2 }} USD</td>
+                            </tr>
+                            <tr>
+                                <th>$50 x</th>
+                                <td>{{ usd_denomination.denomination_50_count }}</td>
+                                <td>= {{ denomination_amounts.usd_50_amount|floatformat:2 }} USD</td>
+                            </tr>
+                            <tr>
+                                <th>$20 x</th>
+                                <td>{{ usd_denomination.denomination_20_count }}</td>
+                                <td>= {{ denomination_amounts.usd_20_amount|floatformat:2 }} USD</td>
+                            </tr>
+                            <tr>
+                                <th>$10 x</th>
+                                <td>{{ usd_denomination.denomination_10_count }}</td>
+                                <td>= {{ denomination_amounts.usd_10_amount|floatformat:2 }} USD</td>
+                            </tr>
+                            <tr>
+                                <th>Small bills & coins</th>
+                                <td colspan="2">{{ usd_denomination.small_bills_coins_amount|floatformat:2 }} USD</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <th>Total USD</th>
+                                <td colspan="2">
+                                    <strong>
+                                        {{ usd_denomination.get_total|floatformat:2 }} USD
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    {% else %}
+                        <div class="alert alert-info">No USD denomination breakdown available.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Teller Details -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-user-tie me-2"></i>Teller Details
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if teller_balances %}
+                <h6 class="border-bottom pb-2 mb-3">Teller Balances</h6>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Teller Name</th>
+                                <th>JMD Amount</th>
+                                <th>USD Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for teller in teller_balances %}
+                                <tr>
+                                    <td>{{ teller.teller_name }}</td>
+                                    <td>{{ teller.jmd_amount|floatformat:2 }} JMD</td>
+                                    <td>{{ teller.usd_amount|floatformat:2 }} USD</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">No teller balance information recorded.</div>
+            {% endif %}
+            
+            {% if not report.all_tellers_balanced and teller_variances %}
+                <h6 class="border-bottom pb-2 mb-3 mt-4">Teller Variances</h6>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Teller Number</th>
+                                <th>Variance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for variance in teller_variances %}
+                                <tr>
+                                    <td>{{ variance.teller_number }}</td>
+                                    <td class="{% if variance.variance < 0 %}text-danger{% elif variance.variance > 0 %}text-success{% endif %}">
+                                        {{ variance.variance|floatformat:2 }} JMD
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            <tr class="table-secondary">
+                                <th>Total Variance:</th>
+                                <td class="{% if report.total_variance < 0 %}text-danger{% elif report.total_variance > 0 %}text-success{% endif %}">
+                                    <strong>{{ report.total_variance|floatformat:2 }} JMD</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Notes -->
+    {% if report.notes %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-sticky-note me-2"></i>Additional Notes
+            </h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-0">{{ report.notes|linebreaks }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

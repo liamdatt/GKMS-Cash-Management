@@ -1,0 +1,285 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-store me-2"></i>{{ location.name }}</h1>
+        <p>Detailed information and cash management for this location</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="fas fa-info-circle me-2"></i>Location Information</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Location ID:</span>
+                            <span class="fw-bold">{{ location.id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Address:</span>
+                            <span class="fw-bold">{{ location.address }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Phone:</span>
+                            <span class="fw-bold">{{ location.phone }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Manager:</span>
+                            <span class="fw-bold">{{ location.manager_name }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="fas fa-shield-alt me-2"></i>Cash Limits</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Insurance Limit:</span>
+                            <span class="fw-bold">${{ limits.insurance_limit|floatformat:2 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>EOD Vault Limit:</span>
+                            <span class="fw-bold">${{ limits.eod_vault_limit|floatformat:2 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Working Day Limit:</span>
+                            <span class="fw-bold">${{ limits.working_day_limit|floatformat:2 }}</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editLimitsModal">
+                            <i class="fas fa-edit me-2"></i>Edit Limits
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-users me-2"></i>Agents</h4>
+                </div>
+                <div class="card-body">
+                    {% if agents %}
+                        <ul class="list-group list-group-flush">
+                            {% for agent in agents %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ agent.user.username }}
+                                    <span class="badge bg-primary rounded-pill">Agent</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i> No agents assigned to this location.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="fas fa-chart-line me-2"></i>Cash Position</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th class="text-end">Value</th>
+                                <th class="text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Previous Day Balance</td>
+                                <td class="text-end">${{ daily_data.previous_day_balance|floatformat:2 }}</td>
+                                <td class="text-end">-</td>
+                            </tr>
+                            <tr>
+                                <td>Cash Delivered Today</td>
+                                <td class="text-end">${{ daily_data.cash_delivered_today|floatformat:2 }}</td>
+                                <td class="text-end">-</td>
+                            </tr>
+                            <tr>
+                                <td>Payout at 3:00 PM</td>
+                                <td class="text-end">${{ daily_data.payout_at_3pm|floatformat:2 }}</td>
+                                <td class="text-end">-</td>
+                            </tr>
+                            <tr class="table-active">
+                                <td><strong>Cash Position at 3:00 PM</strong></td>
+                                <td class="text-end"><strong>${{ daily_data.cash_position_at_3pm|floatformat:2 }}</strong></td>
+                                <td class="text-end">
+                                    {% if daily_data.exceeds_working_day_limit %}
+                                        <span class="badge bg-danger">Over Limit</span>
+                                    {% else %}
+                                        <span class="badge bg-success">OK</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Projected Ending Position</td>
+                                <td class="text-end">${{ daily_data.projected_ending_position|floatformat:2 }}</td>
+                                <td class="text-end">
+                                    {% if daily_data.exceeds_eod_limit %}
+                                        <span class="badge bg-danger">Over Limit</span>
+                                    {% else %}
+                                        <span class="badge bg-success">OK</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4><i class="fas fa-money-check-alt me-2"></i>Recent Cash Requests</h4>
+                    <a href="#" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if cash_requests %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Request Date</th>
+                                        <th>Delivery Date</th>
+                                        <th>JMD Amount</th>
+                                        <th>USD Amount</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in cash_requests %}
+                                        <tr>
+                                            <td>{{ request.request_date }}</td>
+                                            <td>{{ request.delivery_date }}</td>
+                                            <td>${{ request.total_jmd|floatformat:2 }}</td>
+                                            <td>${{ request.total_usd|floatformat:2 }}</td>
+                                            <td>
+                                                {% if request.approved == True %}
+                                                    <span class="badge bg-success">Approved</span>
+                                                {% elif request.approved == False %}
+                                                    <span class="badge bg-danger">Rejected</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if request.approved == None %}
+                                                    <a href="{% url 'approve_cash_request' request.id %}" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-check me-1"></i> Review
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No recent cash requests for this location.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4><i class="fas fa-file-invoice-dollar me-2"></i>Recent EOD Reports</h4>
+                    <a href="#" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if eod_reports %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>EOD Balance</th>
+                                        <th>Tellers Balanced</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for report in eod_reports %}
+                                        <tr>
+                                            <td>{{ report.processing_date }}</td>
+                                            <td>${{ report.eod_balance_jmd|floatformat:2 }}</td>
+                                            <td>
+                                                {% if report.all_tellers_balanced %}
+                                                    <span class="badge bg-success">Yes</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">No</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye me-1"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No recent EOD reports for this location.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Limits Modal -->
+<div class="modal fade" id="editLimitsModal" tabindex="-1" aria-labelledby="editLimitsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLimitsModalLabel">Edit Cash Limits for {{ location.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="#">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="insurance_limit" class="form-label">Insurance Limit</label>
+                        <input type="number" class="form-control" id="insurance_limit" name="insurance_limit" value="{{ limits.insurance_limit }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="eod_vault_limit" class="form-label">EOD Vault Limit</label>
+                        <input type="number" class="form-control" id="eod_vault_limit" name="eod_vault_limit" value="{{ limits.eod_vault_limit }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="working_day_limit" class="form-label">Working Day Limit</label>
+                        <input type="number" class="form-control" id="working_day_limit" name="working_day_limit" value="{{ limits.working_day_limit }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,723 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Submit End of Day Report{% endblock %}
+
+{% block extra_css %}
+<style>
+    .denomination-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .teller-row {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .teller-input {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        background-color: #e9ecef;
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+    
+    .summary-card {
+        background-color: #f0f7ff;
+        border-left: 4px solid #0d6efd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+    
+    .field-row {
+        margin-bottom: 15px;
+    }
+    
+    .hidden-section {
+        display: none;
+    }
+    
+    .var-negative {
+        color: #dc3545;
+    }
+    
+    .var-positive {
+        color: #198754;
+    }
+    
+    .var-neutral {
+        color: #6c757d;
+    }
+    
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+    
+    /* Responsive table styles */
+    @media (max-width: 767px) {
+        .table-responsive-stack tr {
+            display: flex;
+            flex-direction: column;
+        }
+        .table-responsive-stack td {
+            text-align: right;
+            position: relative;
+            padding-left: 50%;
+        }
+        .table-responsive-stack td:before {
+            content: attr(data-label);
+            position: absolute;
+            left: 10px;
+            width: 45%;
+            text-align: left;
+            font-weight: bold;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <h1>
+                <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>
+                End of Day Report Submission
+            </h1>
+            <p class="text-muted">
+                Submit the End of Day report for {{ location.name }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Report summary card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Report Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Location:</strong> {{ location.name }}</p>
+                            <p><strong>Expected Balance:</strong> {{ expected_balance|floatformat:2 }} JMD</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Previous Day Balance:</strong> {{ daily_data.previous_day_balance|floatformat:2 }} JMD</p>
+                            <p><strong>Cash Delivered Today:</strong> {{ daily_data.cash_delivered_today|floatformat:2 }} JMD</p>
+                        </div>
+                    </div>
+                    
+                    {% if existing_report %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        A report already exists for this processing date. Submitting the form will update the existing report.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EOD report form -->
+    <form method="post" id="eodReportForm">
+        {% csrf_token %}
+        
+        <!-- Processing Date -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Processing Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.processing_date.id_for_label }}" class="form-label">
+                            {{ form.processing_date.label }} <span class="required-indicator">*</span>
+                        </label>
+                        <input type="date" name="{{ form.processing_date.name }}" id="{{ form.processing_date.id_for_label }}" class="form-control" value="{{ form.processing_date.value|default:'' }}">
+                        <div class="form-text text-muted">
+                            Default is set to the previous day, but can be changed as needed.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cash Position Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-money-bill-wave me-2"></i>Cash Position
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.closing_balance.id_for_label }}" class="form-label">
+                            {{ form.closing_balance.label }} <span class="required-indicator">*</span>
+                        </label>
+                        {{ form.closing_balance|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.funds_from_bxp_webex.id_for_label }}" class="form-label">
+                            {{ form.funds_from_bxp_webex.label }}
+                        </label>
+                        {{ form.funds_from_bxp_webex|add_class:"form-control" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+                
+        <!-- Cash Sent to Courier Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-truck me-2"></i>Cash Sent to Courier
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    {{ form.cash_sent_to_courier|add_class:"form-check-input" }}
+                    <label for="{{ form.cash_sent_to_courier.id_for_label }}" class="form-check-label">
+                        {{ form.cash_sent_to_courier.label }}
+                    </label>
+                </div>
+                
+                <div id="courier-details" class="hidden-section">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.courier_usd_amount.id_for_label }}" class="form-label">
+                                {{ form.courier_usd_amount.label }}
+                            </label>
+                            {{ form.courier_usd_amount|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.courier_usd_receipt.id_for_label }}" class="form-label">
+                                {{ form.courier_usd_receipt.label }}
+                            </label>
+                            {{ form.courier_usd_receipt|add_class:"form-control" }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.courier_jmd_amount.id_for_label }}" class="form-label">
+                                {{ form.courier_jmd_amount.label }}
+                            </label>
+                            {{ form.courier_jmd_amount|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.courier_jmd_receipt.id_for_label }}" class="form-label">
+                                {{ form.courier_jmd_receipt.label }}
+                            </label>
+                            {{ form.courier_jmd_receipt|add_class:"form-control" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Teller Balancing Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-balance-scale me-2"></i>Teller Balancing
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    {{ form.all_tellers_balanced|add_class:"form-check-input" }}
+                    <label for="{{ form.all_tellers_balanced.id_for_label }}" class="form-check-label">
+                        {{ form.all_tellers_balanced.label }}
+                    </label>
+                </div>
+                
+                <div id="teller-variances" class="hidden-section">
+                    <p class="text-muted mb-3">Please enter teller numbers and their variance amounts (positive for over, negative for short).</p>
+                    
+                    <div id="teller-variance-container">
+                        {% if teller_variances %}
+                            {% for teller in teller_variances %}
+                            <div class="row mb-2 teller-variance-row">
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" name="teller_number[]" placeholder="Teller #" maxlength="2" value="{{ teller.teller_number }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" step="0.01" class="form-control" name="teller_variance[]" placeholder="Variance amount" value="{{ teller.variance }}">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger remove-teller-variance">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="row mb-2 teller-variance-row">
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" name="teller_number[]" placeholder="Teller #" maxlength="2">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" step="0.01" class="form-control" name="teller_variance[]" placeholder="Variance amount">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger remove-teller-variance">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="button" id="add-teller-variance" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-plus me-1"></i> Add Another Teller
+                        </button>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="alert alert-info">
+                                <p class="mb-0"><strong>Total Variance: </strong>
+                                    <span id="total-variance">0.00</span> JMD
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Denomination Breakdown Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-money-bill-alt me-2"></i>Denomination Breakdown
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- JMD Denominations -->
+                    <div class="col-md-6">
+                        <h6 class="section-title">JMD Denominations</h6>
+                        <div class="mb-3">
+                            <label for="{{ form.jmd_5000_count.id_for_label }}" class="form-label">{{ form.jmd_5000_count.label }}</label>
+                            {{ form.jmd_5000_count|add_class:"form-control denomination-count"|attr:"data-currency:jmd"|attr:"data-value:5000" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.jmd_1000_count.id_for_label }}" class="form-label">{{ form.jmd_1000_count.label }}</label>
+                            {{ form.jmd_1000_count|add_class:"form-control denomination-count"|attr:"data-currency:jmd"|attr:"data-value:1000" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.jmd_500_count.id_for_label }}" class="form-label">{{ form.jmd_500_count.label }}</label>
+                            {{ form.jmd_500_count|add_class:"form-control denomination-count"|attr:"data-currency:jmd"|attr:"data-value:500" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.jmd_100_count.id_for_label }}" class="form-label">{{ form.jmd_100_count.label }}</label>
+                            {{ form.jmd_100_count|add_class:"form-control denomination-count"|attr:"data-currency:jmd"|attr:"data-value:100" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.jmd_50_count.id_for_label }}" class="form-label">{{ form.jmd_50_count.label }}</label>
+                            {{ form.jmd_50_count|add_class:"form-control denomination-count"|attr:"data-currency:jmd"|attr:"data-value:50" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.jmd_coins_amount.id_for_label }}" class="form-label">{{ form.jmd_coins_amount.label }}</label>
+                            {{ form.jmd_coins_amount|add_class:"form-control denomination-amount"|attr:"data-currency:jmd" }}
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <p class="mb-0"><strong>JMD Total: </strong><span id="jmd-total">0.00</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- USD Denominations -->
+                    <div class="col-md-6">
+                        <h6 class="section-title">USD Denominations</h6>
+                        <div class="mb-3">
+                            <label for="{{ form.usd_100_count.id_for_label }}" class="form-label">{{ form.usd_100_count.label }}</label>
+                            {{ form.usd_100_count|add_class:"form-control denomination-count"|attr:"data-currency:usd"|attr:"data-value:100" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.usd_50_count.id_for_label }}" class="form-label">{{ form.usd_50_count.label }}</label>
+                            {{ form.usd_50_count|add_class:"form-control denomination-count"|attr:"data-currency:usd"|attr:"data-value:50" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.usd_20_count.id_for_label }}" class="form-label">{{ form.usd_20_count.label }}</label>
+                            {{ form.usd_20_count|add_class:"form-control denomination-count"|attr:"data-currency:usd"|attr:"data-value:20" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.usd_10_count.id_for_label }}" class="form-label">{{ form.usd_10_count.label }}</label>
+                            {{ form.usd_10_count|add_class:"form-control denomination-count"|attr:"data-currency:usd"|attr:"data-value:10" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.usd_small_amount.id_for_label }}" class="form-label">{{ form.usd_small_amount.label }}</label>
+                            {{ form.usd_small_amount|add_class:"form-control denomination-amount"|attr:"data-currency:usd" }}
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <p class="mb-0"><strong>USD Total: </strong><span id="usd-total">0.00</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Teller Balances Section - traditional format -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-tie me-2"></i>Teller Details
+                </h5>
+                <button type="button" id="add-teller-row" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus me-1"></i> Add Teller
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="teller-container">
+                    {% if teller_balances %}
+                        {% for teller in teller_balances %}
+                        <div class="row mb-3 teller-row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="teller_name[]" placeholder="Teller Name" value="{{ teller.teller_name }}">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" step="0.01" class="form-control" name="teller_jmd[]" placeholder="JMD Amount" value="{{ teller.jmd_amount }}">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" step="0.01" class="form-control" name="teller_usd[]" placeholder="USD Amount" value="{{ teller.usd_amount }}">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-danger remove-teller">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row mb-3 teller-row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="teller_name[]" placeholder="Teller Name">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" step="0.01" class="form-control" name="teller_jmd[]" placeholder="JMD Amount">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" step="0.01" class="form-control" name="teller_usd[]" placeholder="USD Amount">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-danger remove-teller">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notes Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-sticky-note me-2"></i>Additional Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
+                    {{ form.notes|add_class:"form-control" }}
+                </div>
+                
+                <div class="form-check mb-3">
+                    {{ form.confirmation|add_class:"form-check-input" }}
+                    <label for="{{ form.confirmation.id_for_label }}" class="form-check-label fw-bold">
+                        {{ form.confirmation.label }}
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit buttons -->
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'agent_dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Cancel
+            </a>
+            
+            <div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Submit Report
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle cash sent to courier toggle
+        const courierCheckbox = document.getElementById('{{ form.cash_sent_to_courier.id_for_label }}');
+        const courierDetails = document.getElementById('courier-details');
+        
+        function toggleCourierDetails() {
+            if (courierCheckbox.checked) {
+                courierDetails.classList.remove('hidden-section');
+            } else {
+                courierDetails.classList.add('hidden-section');
+            }
+        }
+        
+        courierCheckbox.addEventListener('change', toggleCourierDetails);
+        // Initialize on page load
+        toggleCourierDetails();
+        
+        // Handle teller balancing toggle
+        const tellersBalancedCheckbox = document.getElementById('{{ form.all_tellers_balanced.id_for_label }}');
+        const tellerVariances = document.getElementById('teller-variances');
+        
+        function toggleTellerVariances() {
+            if (!tellersBalancedCheckbox.checked) {
+                tellerVariances.classList.remove('hidden-section');
+            } else {
+                tellerVariances.classList.add('hidden-section');
+            }
+        }
+        
+        tellersBalancedCheckbox.addEventListener('change', toggleTellerVariances);
+        // Initialize on page load
+        toggleTellerVariances();
+        
+        // Add teller row functionality
+        const addTellerRow = document.getElementById('add-teller-row');
+        const tellerContainer = document.getElementById('teller-container');
+        
+        addTellerRow.addEventListener('click', function() {
+            const newRow = document.createElement('div');
+            newRow.className = 'row mb-3 teller-row';
+            newRow.innerHTML = `
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="teller_name[]" placeholder="Teller Name">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" step="0.01" class="form-control" name="teller_jmd[]" placeholder="JMD Amount">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" step="0.01" class="form-control" name="teller_usd[]" placeholder="USD Amount">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-teller">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            tellerContainer.appendChild(newRow);
+            
+            // Add event listeners to the new remove button
+            const removeButtons = newRow.querySelectorAll('.remove-teller');
+            removeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.teller-row').remove();
+                });
+            });
+        });
+        
+        // Remove teller row functionality
+        document.querySelectorAll('.remove-teller').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.teller-row').remove();
+            });
+        });
+        
+        // Add teller variance functionality
+        const addTellerVariance = document.getElementById('add-teller-variance');
+        const tellerVarianceContainer = document.getElementById('teller-variance-container');
+        
+        addTellerVariance.addEventListener('click', function() {
+            const newRow = document.createElement('div');
+            newRow.className = 'row mb-2 teller-variance-row';
+            newRow.innerHTML = `
+                <div class="col-md-2">
+                    <input type="text" class="form-control teller-number" name="teller_number[]" placeholder="Teller #" maxlength="2">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" step="0.01" class="form-control teller-variance-amount" name="teller_variance[]" placeholder="Variance amount">
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger remove-teller-variance">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            tellerVarianceContainer.appendChild(newRow);
+            
+            // Add event listeners to the new remove button
+            newRow.querySelector('.remove-teller-variance').addEventListener('click', function() {
+                this.closest('.teller-variance-row').remove();
+                updateTotalVariance();
+            });
+            
+            // Add input event listener to update total variance
+            newRow.querySelector('.teller-variance-amount').addEventListener('input', updateTotalVariance);
+        });
+        
+        // Remove teller variance functionality
+        document.querySelectorAll('.remove-teller-variance').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.teller-variance-row').remove();
+                updateTotalVariance();
+            });
+        });
+        
+        // Add input event listeners to existing variance fields
+        document.querySelectorAll('.teller-variance-amount').forEach(input => {
+            input.addEventListener('input', updateTotalVariance);
+        });
+        
+        // Function to update total variance
+        function updateTotalVariance() {
+            const varianceInputs = document.querySelectorAll('.teller-variance-amount');
+            let total = 0;
+            
+            varianceInputs.forEach(input => {
+                const value = parseFloat(input.value || 0);
+                if (!isNaN(value)) {
+                    total += value;
+                }
+            });
+            
+            const totalVarianceElement = document.getElementById('total-variance');
+            totalVarianceElement.textContent = total.toFixed(2);
+            
+            // Update color based on value
+            if (total < 0) {
+                totalVarianceElement.className = 'var-negative';
+            } else if (total > 0) {
+                totalVarianceElement.className = 'var-positive';
+            } else {
+                totalVarianceElement.className = 'var-neutral';
+            }
+        }
+        
+        // Initialize total variance on page load
+        updateTotalVariance();
+        
+        // Denomination calculations
+        const jmdInputs = document.querySelectorAll('[data-currency="jmd"]');
+        const usdInputs = document.querySelectorAll('[data-currency="usd"]');
+        
+        function updateJmdTotal() {
+            let total = 0;
+            
+            jmdInputs.forEach(input => {
+                if (input.classList.contains('denomination-count')) {
+                    // For count inputs (notes)
+                    const count = parseInt(input.value || 0);
+                    const value = parseInt(input.getAttribute('data-value'));
+                    if (!isNaN(count) && !isNaN(value)) {
+                        total += count * value;
+                    }
+                } else if (input.classList.contains('denomination-amount')) {
+                    // For direct amount inputs (coins)
+                    const amount = parseFloat(input.value || 0);
+                    if (!isNaN(amount)) {
+                        total += amount;
+                    }
+                }
+            });
+            
+            document.getElementById('jmd-total').textContent = total.toFixed(2);
+        }
+        
+        function updateUsdTotal() {
+            let total = 0;
+            
+            usdInputs.forEach(input => {
+                if (input.classList.contains('denomination-count')) {
+                    // For count inputs (notes)
+                    const count = parseInt(input.value || 0);
+                    const value = parseInt(input.getAttribute('data-value'));
+                    if (!isNaN(count) && !isNaN(value)) {
+                        total += count * value;
+                    }
+                } else if (input.classList.contains('denomination-amount')) {
+                    // For direct amount inputs (small bills & coins)
+                    const amount = parseFloat(input.value || 0);
+                    if (!isNaN(amount)) {
+                        total += amount;
+                    }
+                }
+            });
+            
+            document.getElementById('usd-total').textContent = total.toFixed(2);
+        }
+        
+        // Add event listeners to JMD inputs
+        jmdInputs.forEach(input => {
+            input.addEventListener('input', updateJmdTotal);
+        });
+        
+        // Add event listeners to USD inputs
+        usdInputs.forEach(input => {
+            input.addEventListener('input', updateUsdTotal);
+        });
+        
+        // Initialize totals on page load
+        updateJmdTotal();
+        updateUsdTotal();
+        
+        // Form validation
+        const form = document.getElementById('eodReportForm');
+        form.addEventListener('submit', function(event) {
+            // Check if courier checkbox is checked but no amounts are entered
+            if (courierCheckbox.checked) {
+                const usdAmount = parseFloat(document.getElementById('{{ form.courier_usd_amount.id_for_label }}').value || 0);
+                const jmdAmount = parseFloat(document.getElementById('{{ form.courier_jmd_amount.id_for_label }}').value || 0);
+                
+                if (usdAmount === 0 && jmdAmount === 0) {
+                    event.preventDefault();
+                    alert('Please enter at least one amount for cash sent to courier, or uncheck the box if no cash was sent.');
+                }
+                
+                // Check for receipt numbers if amounts are entered
+                if (usdAmount > 0 && !document.getElementById('{{ form.courier_usd_receipt.id_for_label }}').value.trim()) {
+                    event.preventDefault();
+                    alert('Please enter a USD receipt number for the cash sent to courier.');
+                }
+                
+                if (jmdAmount > 0 && !document.getElementById('{{ form.courier_jmd_receipt.id_for_label }}').value.trim()) {
+                    event.preventDefault();
+                    alert('Please enter a JMD receipt number for the cash sent to courier.');
+                }
+            }
+            
+            // Make sure confirmation is checked
+            if (!document.getElementById('{{ form.confirmation.id_for_label }}').checked) {
+                event.preventDefault();
+                alert('Please confirm the accuracy of the report before submitting.');
+            }
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,677 @@
+{% extends 'core/base.html' %}
+
+{% block extra_css %}
+<style>
+/* Cash Request Approval Styles */
+.approval-header {
+  background: linear-gradient(135deg, #3a0ca3, #4361ee);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  box-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
+}
+
+.approval-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJkb3RzIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNCIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNkb3RzKSIgLz48L3N2Zz4=');
+  opacity: 0.6;
+}
+
+.approval-header .content {
+  position: relative;
+  z-index: 1;
+}
+
+.approval-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.approval-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 600px;
+}
+
+.approval-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s;
+}
+
+.approval-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.approval-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.approval-card-header h5 {
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.approval-card-header h5 i {
+  color: #4361ee;
+  margin-right: 0.75rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 50rem;
+}
+
+.status-badge.pending {
+  background-color: rgba(252, 163, 17, 0.1);
+  color: #fca311;
+}
+
+.status-badge.approved {
+  background-color: rgba(76, 201, 240, 0.1);
+  color: #4cc9f0;
+}
+
+.status-badge.delivered {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: #4361ee;
+}
+
+.status-badge.rejected {
+  background-color: rgba(247, 37, 133, 0.1);
+  color: #f72585;
+}
+
+.request-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-item {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.detail-item .label {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.detail-item .value {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.detail-item.amount .value {
+  color: #4361ee;
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.agent-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4361ee, #3a0ca3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.agent-details h5 {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.agent-details p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.reason-box {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.reason-box h6 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.reason-box p {
+  margin-bottom: 0;
+  color: #495057;
+}
+
+.approval-form {
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.approval-form h5 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.approval-actions .btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+}
+
+.approval-actions .btn-approve {
+  background: #4cc9f0;
+  border-color: #4cc9f0;
+}
+
+.approval-actions .btn-approve:hover {
+  background: #3db8df;
+  border-color: #3db8df;
+}
+
+.approval-actions .btn-reject {
+  background: #f72585;
+  border-color: #f72585;
+}
+
+.approval-actions .btn-reject:hover {
+  background: #e61a76;
+  border-color: #e61a76;
+}
+
+.location-stats {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.location-stats h6 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: #6c757d;
+}
+
+.stat-value {
+  font-weight: 600;
+}
+
+.stat-value.warning {
+  color: #fca311;
+}
+
+.stat-value.danger {
+  color: #f72585;
+}
+
+.stat-value.safe {
+  color: #4cc9f0;
+}
+
+.progress {
+  height: 6px;
+  margin-top: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 50rem;
+  transition: width 0.6s ease;
+}
+
+.progress-bar.safe {
+  background-color: #4cc9f0;
+}
+
+.progress-bar.warning {
+  background-color: #fca311;
+}
+
+.progress-bar.danger {
+  background-color: #f72585;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="approval-header">
+    <div class="content">
+      <h1>Cash Request Review</h1>
+      <p>Review and process the cash request from {{ request.agent.user.username }} for {{ request.location.name }}.</p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="approval-card">
+        <div class="approval-card-header">
+          <h5><i class="fas fa-file-invoice-dollar"></i>Request #{{ request.id }}</h5>
+          <span class="status-badge {{ request.status }}">{{ request.status|title }}</span>
+        </div>
+        
+        <div class="request-details">
+          <div class="detail-item amount">
+            <div class="label">Requested Amount</div>
+            <div class="value">${{ request.amount|floatformat:2 }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Requested By</div>
+            <div class="value">{{ request.agent.user.username }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Location</div>
+            <div class="value">{{ request.location.name }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Requested On</div>
+            <div class="value">{{ request.created_at|date:"M d, Y" }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Requested Delivery</div>
+            <div class="value">{{ request.requested_delivery_date|date:"M d, Y" }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Time Elapsed</div>
+            <div class="value">{{ request.time_elapsed }}</div>
+          </div>
+        </div>
+        
+        <div class="agent-info">
+          <div class="agent-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="agent-details">
+            <h5>{{ request.agent.user.get_full_name|default:request.agent.user.username }}</h5>
+            <p>{{ request.agent.position }} at {{ request.location.name }}</p>
+            <p><i class="fas fa-envelope me-2"></i>{{ request.agent.user.email }}</p>
+            <p><i class="fas fa-phone me-2"></i>{{ request.agent.phone_number|default:"Not provided" }}</p>
+          </div>
+        </div>
+        
+        <div class="reason-box">
+          <h6>Reason for Request</h6>
+          <p>{{ request.reason }}</p>
+        </div>
+        
+        {% if request.status == 'pending' %}
+        <form method="post" action="{% url 'process_cash_request' request.id %}">
+          {% csrf_token %}
+          <div class="approval-form">
+            <h5>Process This Request</h5>
+            
+            <div class="mb-3">
+              <label class="form-label">Decision</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="decision" id="approve" value="approve" checked>
+                <label class="form-check-label" for="approve">
+                  Approve Request
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="decision" id="reject" value="reject">
+                <label class="form-check-label" for="reject">
+                  Reject Request
+                </label>
+              </div>
+            </div>
+            
+            <div id="approval-fields">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Delivery Date</label>
+                    <input type="date" name="delivery_date" class="form-control" value="{{ request.requested_delivery_date|date:'Y-m-d' }}">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Approved Amount</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" name="approved_amount" class="form-control" value="{{ request.amount }}" step="0.01">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Delivery Instructions</label>
+                <textarea name="delivery_instructions" class="form-control" rows="3"></textarea>
+              </div>
+            </div>
+            
+            <div id="rejection-fields" style="display: none;">
+              <div class="mb-3">
+                <label class="form-label">Reason for Rejection</label>
+                <textarea name="rejection_reason" class="form-control" rows="3"></textarea>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Notes (Internal)</label>
+              <textarea name="notes" class="form-control" rows="2"></textarea>
+            </div>
+            
+            <div class="approval-actions">
+              <button type="submit" class="btn btn-approve" id="approve-btn">
+                <i class="fas fa-check me-2"></i>Approve Request
+              </button>
+              <button type="submit" class="btn btn-reject" id="reject-btn" style="display: none;">
+                <i class="fas fa-times me-2"></i>Reject Request
+              </button>
+              <a href="{% url 'cash_requests' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Requests
+              </a>
+            </div>
+          </div>
+        </form>
+        {% elif request.status == 'approved' %}
+        <div class="approval-form">
+          <h5>Request Approved</h5>
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            This request was approved by {{ request.approved_by.username }} on {{ request.approved_at|date:"M d, Y g:i A" }}.
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Delivery Date</label>
+                <input type="date" class="form-control" value="{{ request.delivery_date|date:'Y-m-d' }}" disabled>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Approved Amount</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" value="{{ request.approved_amount }}" disabled>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {% if request.delivery_instructions %}
+          <div class="mb-3">
+            <label class="form-label">Delivery Instructions</label>
+            <textarea class="form-control" rows="3" disabled>{{ request.delivery_instructions }}</textarea>
+          </div>
+          {% endif %}
+          
+          {% if request.notes %}
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" rows="2" disabled>{{ request.notes }}</textarea>
+          </div>
+          {% endif %}
+          
+          <div class="approval-actions">
+            <a href="{% url 'mark_delivered' request.id %}" class="btn btn-primary">
+              <i class="fas fa-truck me-2"></i>Mark as Delivered
+            </a>
+            <a href="{% url 'cash_requests' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Back to Requests
+            </a>
+          </div>
+        </div>
+        {% elif request.status == 'rejected' %}
+        <div class="approval-form">
+          <h5>Request Rejected</h5>
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            This request was rejected by {{ request.rejected_by.username }} on {{ request.rejected_at|date:"M d, Y g:i A" }}.
+          </div>
+          
+          {% if request.rejection_reason %}
+          <div class="mb-3">
+            <label class="form-label">Reason for Rejection</label>
+            <textarea class="form-control" rows="3" disabled>{{ request.rejection_reason }}</textarea>
+          </div>
+          {% endif %}
+          
+          {% if request.notes %}
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" rows="2" disabled>{{ request.notes }}</textarea>
+          </div>
+          {% endif %}
+          
+          <div class="approval-actions">
+            <a href="{% url 'cash_requests' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Back to Requests
+            </a>
+          </div>
+        </div>
+        {% elif request.status == 'delivered' %}
+        <div class="approval-form">
+          <h5>Cash Delivered</h5>
+          <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>
+            This cash request was delivered on {{ request.delivered_at|date:"M d, Y g:i A" }}.
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Delivery Date</label>
+                <input type="date" class="form-control" value="{{ request.delivery_date|date:'Y-m-d' }}" disabled>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Delivered Amount</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" value="{{ request.approved_amount }}" disabled>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="approval-actions">
+            <a href="{% url 'cash_requests' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Back to Requests
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="approval-card">
+        <div class="approval-card-header">
+          <h5><i class="fas fa-map-marker-alt"></i>Location Information</h5>
+        </div>
+        
+        <div class="location-stats">
+          <h6>Cash Position</h6>
+          
+          <div class="stat-row">
+            <div class="stat-label">Current Balance</div>
+            <div class="stat-value">${{ location_stats.current_balance|floatformat:2 }}</div>
+          </div>
+          
+          <div class="stat-row">
+            <div class="stat-label">Working Day Limit</div>
+            <div class="stat-value">${{ location_stats.working_day_limit|floatformat:2 }}</div>
+          </div>
+          
+          <div class="stat-row">
+            <div class="stat-label">Position vs Limit</div>
+            <div class="stat-value {% if location_stats.position_percentage < 60 %}safe{% elif location_stats.position_percentage < 85 %}warning{% else %}danger{% endif %}">
+              {{ location_stats.position_percentage }}%
+            </div>
+          </div>
+          
+          <div class="progress">
+            <div class="progress-bar {% if location_stats.position_percentage < 60 %}safe{% elif location_stats.position_percentage < 85 %}warning{% else %}danger{% endif %}" 
+                 style="width: {{ location_stats.position_percentage }}%"></div>
+          </div>
+        </div>
+        
+        <div class="location-stats">
+          <h6>Request History</h6>
+          
+          <div class="stat-row">
+            <div class="stat-label">Requests This Month</div>
+            <div class="stat-value">{{ location_stats.requests_this_month }}</div>
+          </div>
+          
+          <div class="stat-row">
+            <div class="stat-label">Total Delivered This Month</div>
+            <div class="stat-value">${{ location_stats.total_delivered_this_month|floatformat:2 }}</div>
+          </div>
+          
+          <div class="stat-row">
+            <div class="stat-label">Average Request Amount</div>
+            <div class="stat-value">${{ location_stats.average_request_amount|floatformat:2 }}</div>
+          </div>
+          
+          <div class="stat-row">
+            <div class="stat-label">Last Request</div>
+            <div class="stat-value">{{ location_stats.last_request_date|date:"M d, Y"|default:"None" }}</div>
+          </div>
+        </div>
+        
+        <div class="location-stats">
+          <h6>Recent Activity</h6>
+          
+          {% if recent_activities %}
+          <div class="list-group list-group-flush">
+            {% for activity in recent_activities %}
+            <div class="list-group-item px-0 py-2 border-0">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">{{ activity.title }}</h6>
+                <small>{{ activity.date|date:"M d" }}</small>
+              </div>
+              <p class="mb-1 text-muted small">{{ activity.description }}</p>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted">No recent activity for this location.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Toggle between approval and rejection fields
+  const approveRadio = document.getElementById('approve');
+  const rejectRadio = document.getElementById('reject');
+  const approvalFields = document.getElementById('approval-fields');
+  const rejectionFields = document.getElementById('rejection-fields');
+  const approveBtn = document.getElementById('approve-btn');
+  const rejectBtn = document.getElementById('reject-btn');
+  
+  if (approveRadio && rejectRadio) {
+    approveRadio.addEventListener('change', function() {
+      if (this.checked) {
+        approvalFields.style.display = '';
+        rejectionFields.style.display = 'none';
+        approveBtn.style.display = '';
+        rejectBtn.style.display = 'none';
+      }
+    });
+    
+    rejectRadio.addEventListener('change', function() {
+      if (this.checked) {
+        approvalFields.style.display = 'none';
+        rejectionFields.style.display = '';
+        approveBtn.style.display = 'none';
+        rejectBtn.style.display = '';
+      }
+    });
+  }
+  
+  // Animate progress bars
+  document.querySelectorAll('.progress-bar').forEach(bar => {
+    const width = bar.style.width;
+    bar.style.width = '0%';
+    
+    setTimeout(() => {
+      bar.style.width = width;
+    }, 300);
+  });
+});
+</script>
+{% endblock %} 

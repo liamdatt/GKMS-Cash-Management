@@ -1,0 +1,1775 @@
+{% extends 'core/base.html' %}
+
+{% block extra_css %}
+<style>
+/* Ultra Modern UI Styles */
+:root {
+  /* Modern Color Palette - Vibrant blues and purples */
+  --primary: #4361ee;
+  --primary-light: #4895ef;
+  --secondary: #3a0ca3;
+  --success: #4cc9f0;
+  --danger: #f72585;
+  --warning: #fca311;
+  --info: #4cc9f0;
+  --light: #f8f9fa;
+  --dark: #212529;
+  --gradient-1: linear-gradient(135deg, #4361ee, #3a0ca3);
+  --gradient-2: linear-gradient(135deg, #4cc9f0, #4895ef);
+  --gradient-3: linear-gradient(135deg, #f72585, #7209b7);
+  --gradient-4: linear-gradient(135deg, #fca311, #e76f51);
+  --glass: rgba(255, 255, 255, 0.2);
+  --glass-dark: rgba(0, 0, 0, 0.05);
+}
+
+/* Glassmorphism & Neumorphism Effects */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.125);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.05),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.neumorphism {
+  background: #f0f2f5;
+  border-radius: 24px;
+  box-shadow: 
+    12px 12px 24px rgba(0, 0, 0, 0.08),
+    -12px -12px 24px rgba(255, 255, 255, 0.8);
+}
+
+/* Micro Interactions & Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse-shadow {
+  0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Page Layout & Body */
+body {
+  background-color: #f5f7fa;
+  background-image: 
+    linear-gradient(135deg, rgba(67, 97, 238, 0.1) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(67, 97, 238, 0.1) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(76, 201, 240, 0.1) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(76, 201, 240, 0.1) 25%, transparent 25%);
+  background-position: 10px 0, 10px 0, 0 0, 0 0;
+  background-size: 20px 20px;
+  background-repeat: repeat;
+  min-height: 100vh;
+}
+
+.page-container {
+  padding-bottom: 40px;
+}
+
+/* Modern Header */
+.ultra-header {
+  padding: 2.5rem 0;
+  position: relative;
+  background: var(--gradient-1);
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.ultra-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJkb3RzIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuMyIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNkb3RzKSIgLz48L3N2Zz4=');
+  opacity: 0.5;
+}
+
+.ultra-header .container {
+  position: relative;
+  z-index: 1;
+}
+
+.ultra-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.ultra-header p {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 600px;
+}
+
+/* Ultra Modern Cards */
+.ultra-card {
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.05),
+    0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  position: relative;
+}
+
+.ultra-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.ultra-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: var(--gradient-1);
+}
+
+.ultra-stat-card {
+  border-radius: 16px;
+  padding: 2rem;
+  background: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ultra-stat-card:hover {
+  transform: translateY(-7px);
+}
+
+.ultra-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 100%);
+  z-index: 1;
+}
+
+.ultra-stat-card.primary {
+  background: var(--gradient-1);
+  color: white;
+}
+
+.ultra-stat-card.secondary {
+  background: var(--gradient-2);
+  color: white;
+}
+
+.ultra-stat-card.danger {
+  background: var(--gradient-3);
+  color: white;
+}
+
+.ultra-stat-card.warning {
+  background: var(--gradient-4);
+  color: white;
+}
+
+.ultra-stat-icon {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  font-size: 6rem;
+  opacity: 0.15;
+  transform: rotate(10deg);
+}
+
+.ultra-stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  position: relative;
+  z-index: 2;
+}
+
+.ultra-stat-label {
+  font-size: 1rem;
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+  opacity: 0.8;
+}
+
+/* Beautiful Search Box */
+.search-box-ultra {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 50px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.search-box-ultra:focus-within {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.search-box-ultra i {
+  color: #a0aec0;
+  font-size: 1.2rem;
+  margin-right: 1rem;
+}
+
+.search-box-ultra input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+}
+
+/* Modern Table */
+.ultra-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+.ultra-table thead th {
+  padding: 1rem 1.5rem;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  color: #718096;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+}
+
+.ultra-table tbody tr {
+  background: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.ultra-table tbody tr:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.ultra-table tbody td {
+  padding: 1.25rem 1.5rem;
+  vertical-align: middle;
+  border: none;
+}
+
+.ultra-table tbody td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.ultra-table tbody td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* Avatar & Badge Styling */
+.ultra-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: white;
+  background: var(--gradient-1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ultra-avatar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.ultra-avatar.admin {
+  background: var(--gradient-1);
+}
+
+.ultra-avatar.agent {
+  background: var(--gradient-2);
+}
+
+.ultra-avatar.superuser {
+  background: var(--gradient-3);
+}
+
+.ultra-badge {
+  padding: 0.45rem 0.9rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ultra-badge i {
+  margin-right: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.ultra-badge.admin {
+  background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0.1) 100%);
+  color: var(--primary);
+}
+
+.ultra-badge.agent {
+  background: linear-gradient(135deg, rgba(76, 201, 240, 0.1) 0%, rgba(72, 149, 239, 0.1) 100%);
+  color: var(--primary-light);
+}
+
+.ultra-badge.superuser {
+  background: linear-gradient(135deg, rgba(247, 37, 133, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%);
+  color: var(--danger);
+}
+
+/* Buttons */
+.ultra-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ultra-btn::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ultra-btn:hover::after {
+  opacity: 1;
+}
+
+.ultra-btn.btn-primary {
+  background: var(--gradient-1);
+  color: white;
+}
+
+.ultra-btn.btn-secondary {
+  background: var(--gradient-2);
+  color: white;
+}
+
+.ultra-btn.btn-outline {
+  background: white;
+  color: var(--primary);
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.ultra-btn.btn-danger {
+  background: var(--gradient-3);
+  color: white;
+}
+
+.ultra-btn i {
+  margin-right: 0.5rem;
+}
+
+/* Floating action button */
+.ultra-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  background: var(--gradient-1);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.ultra-fab:hover {
+  transform: scale(1.1) rotate(10deg);
+}
+
+.ultra-fab i {
+  font-size: 1.5rem;
+}
+
+/* Filter Pills */
+.ultra-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-right: 0.75rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  color: #718096;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.ultra-filter-pill:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.ultra-filter-pill.active {
+  background: var(--gradient-1);
+  color: white;
+}
+
+.ultra-filter-pill i {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+/* Apply animation to elements */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-appear {
+  animation: appear 0.5s ease forwards;
+}
+
+.animate-pulse-shadow {
+  animation: pulse-shadow 2s infinite;
+}
+
+/* Add these exciting new UI enhancements */
+
+/* Animated Background */
+.bg-animated {
+  background: linear-gradient(-45deg, #4361ee08, #4895ef08, #3a0ca308, #4cc9f008);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Interactive Card Effects */
+.interactive-card {
+  position: relative;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.interactive-card:hover {
+  transform: translateY(-5px) rotateX(2deg);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 15px rgba(67, 97, 238, 0.3);
+  z-index: 2;
+}
+
+.interactive-card .card-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(255,255,255,0.05) 50%, 
+    rgba(255,255,255,0) 100%);
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.interactive-card:hover .card-shine {
+  opacity: 1;
+}
+
+/* Beautiful Tooltips */
+.tooltip-custom {
+  position: relative;
+}
+
+.tooltip-custom .tooltip-content {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.8);
+  width: 220px;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 100;
+}
+
+.tooltip-custom:hover .tooltip-content {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  pointer-events: auto;
+}
+
+.tooltip-custom .tooltip-content::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: white;
+}
+
+/* Interactive User Rows */
+.user-row {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  position: relative;
+}
+
+.user-row:hover {
+  background-color: rgba(67, 97, 238, 0.05);
+}
+
+.user-row td {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Fancy Badge Effects */
+.fancy-badge {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.fancy-badge::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: inherit;
+  filter: blur(10px) brightness(1.2);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s;
+}
+
+.fancy-badge:hover::before {
+  opacity: 1;
+}
+
+/* Animated Icons */
+.animated-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.animated-icon:hover {
+  transform: scale(1.2);
+}
+
+/* Avatar Glow Effect */
+.avatar-glow {
+  position: relative;
+}
+
+.avatar-glow::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  background: inherit;
+  filter: blur(5px);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: -1;
+}
+
+.avatar-glow:hover::after {
+  opacity: 0.7;
+}
+
+/* Circular Progress */
+.circular-progress {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.circular-progress svg {
+  transform: rotate(-90deg);
+}
+
+.circular-progress circle {
+  stroke-dasharray: 100;
+  stroke-dashoffset: calc(100 - var(--progress, 0));
+  transition: stroke-dashoffset 1s ease;
+}
+
+/* Floating Action Button */
+.floating-action {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--gradient-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  z-index: 1000;
+}
+
+.floating-action:hover {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Pulsing Effect */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(67, 97, 238, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+}
+
+.pulse-effect {
+  animation: pulse 2s infinite;
+}
+
+/* Interactive Notification System */
+.notification-bell {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.notification-bell:hover {
+  transform: scale(1.1);
+}
+
+.notification-bell .indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  background: var(--danger);
+  border-radius: 50%;
+  color: white;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(247, 37, 133, 0.5);
+}
+
+.notification-panel {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  width: 320px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1001;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-panel.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.notification-header {
+  padding: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: flex-start;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background-color: rgba(67, 97, 238, 0.05);
+}
+
+.notification-item .icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.notification-item .content {
+  flex: 1;
+}
+
+.notification-item .time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 3px;
+}
+
+/* Advanced User Detail Panel */
+.user-detail-panel {
+  position: fixed;
+  top: 0;
+  right: -450px;
+  width: 450px;
+  height: 100vh;
+  background: white;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1050;
+  overflow-y: auto;
+}
+
+.user-detail-panel.open {
+  right: 0;
+}
+
+.user-detail-header {
+  padding: 25px;
+  background: var(--gradient-1);
+  color: white;
+  position: relative;
+}
+
+.user-detail-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.user-detail-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.user-detail-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.user-detail-content {
+  padding: 25px;
+}
+
+.user-detail-section {
+  margin-bottom: 25px;
+}
+
+.user-detail-section h4 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #555;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.user-detail-section h4 i {
+  margin-right: 10px;
+  color: var(--primary);
+}
+
+.user-detail-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.user-detail-item:last-child {
+  border-bottom: none;
+}
+
+.user-detail-item .label {
+  width: 120px;
+  font-weight: 500;
+  color: #777;
+}
+
+.user-detail-item .value {
+  flex: 1;
+  font-weight: 600;
+}
+
+.user-detail-actions {
+  padding: 0 25px 25px;
+}
+
+/* Context Menu */
+.context-menu {
+  position: absolute;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  min-width: 180px;
+  z-index: 1000;
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.context-menu.show {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.context-menu-item {
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.context-menu-item:hover {
+  background-color: rgba(67, 97, 238, 0.05);
+}
+
+.context-menu-item i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  margin: 5px 0;
+}
+
+/* Quick Action Buttons */
+.quick-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #555;
+}
+
+.quick-action:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.quick-action.primary:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.quick-action.success:hover {
+  background: var(--success);
+  color: white;
+}
+
+.quick-action.warning:hover {
+  background: var(--warning);
+  color: white;
+}
+
+.quick-action.danger:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2000;
+}
+
+.toast-notification {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  overflow: hidden;
+  width: 300px;
+  transform: translateX(400px);
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast-notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-header {
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.toast-header .icon {
+  margin-right: 10px;
+}
+
+.toast-header .close {
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+}
+
+.toast-body {
+  padding: 15px;
+}
+
+.toast-notification.success .progress {
+  background: var(--success);
+}
+
+.toast-notification.error .progress {
+  background: var(--danger);
+}
+
+.toast-notification.info .progress {
+  background: var(--info);
+}
+
+.toast-notification .progress {
+  height: 4px;
+  width: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 5s linear;
+}
+
+.toast-notification.show .progress {
+  transform: scaleX(1);
+}
+
+/* Motion Effects */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s forwards;
+}
+
+.stagger-item {
+  opacity: 0;
+}
+
+.stagger-animation .stagger-item:nth-child(1) { animation: fadeInUp 0.5s forwards 0.1s; }
+.stagger-animation .stagger-item:nth-child(2) { animation: fadeInUp 0.5s forwards 0.2s; }
+.stagger-animation .stagger-item:nth-child(3) { animation: fadeInUp 0.5s forwards 0.3s; }
+.stagger-animation .stagger-item:nth-child(4) { animation: fadeInUp 0.5s forwards 0.4s; }
+.stagger-animation .stagger-item:nth-child(5) { animation: fadeInUp 0.5s forwards 0.5s; }
+.stagger-animation .stagger-item:nth-child(6) { animation: fadeInUp 0.5s forwards 0.6s; }
+.stagger-animation .stagger-item:nth-child(7) { animation: fadeInUp 0.5s forwards 0.7s; }
+.stagger-animation .stagger-item:nth-child(8) { animation: fadeInUp 0.5s forwards 0.8s; }
+
+/* Ultra Modern Modal Dialog */
+.ultra-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.ultra-modal-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ultra-modal {
+  background: white;
+  border-radius: 24px;
+  width: 500px;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.ultra-modal-backdrop.show .ultra-modal {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.ultra-modal-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.ultra-modal-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(67, 97, 238, 0.3), transparent);
+}
+
+.ultra-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.ultra-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.ultra-modal-close:hover {
+  background: rgba(247, 37, 133, 0.1);
+  color: var(--danger);
+  transform: rotate(90deg);
+}
+
+.ultra-modal-body {
+  padding: 30px;
+}
+
+.ultra-modal-footer {
+  padding: 20px 30px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ultra-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ultra-btn::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: -100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.ultra-btn:hover::after {
+  left: 100%;
+}
+
+.ultra-btn-primary {
+  background: var(--gradient-1);
+  color: white;
+  box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+}
+
+.ultra-btn-outline {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ultra-btn-danger {
+  background: var(--gradient-3);
+  color: white;
+  box-shadow: 0 4px 6px rgba(247, 37, 133, 0.2);
+}
+
+/* Form Elements */
+.ultra-form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.ultra-form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.ultra-form-control {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #555;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.ultra-form-control:focus {
+  color: #333;
+  background-color: #fff;
+  border-color: var(--primary);
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+}
+
+.ultra-form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555' width='18px' height='18px'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 40px;
+}
+
+/* Animations for form elements */
+@keyframes formFieldFocus {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.ultra-form-control:focus {
+  animation: formFieldFocus 0.3s ease;
+}
+
+/* Form validation styles */
+.is-valid {
+  border-color: var(--success) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234cc9f0' width='18px' height='18px'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 40px;
+  background-size: 20px;
+}
+
+.is-invalid {
+  border-color: var(--danger) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f72585' width='18px' height='18px'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 40px;
+  background-size: 20px;
+}
+
+.feedback-invalid {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--danger);
+}
+
+/* Modal Animation Variants */
+.zoom-in .ultra-modal {
+  transform: scale(0.5);
+}
+
+.zoom-in.show .ultra-modal {
+  transform: scale(1);
+}
+
+.slide-up .ultra-modal {
+  transform: translateY(50px);
+}
+
+.slide-up.show .ultra-modal {
+  transform: translateY(0);
+}
+
+.flip-in .ultra-modal {
+  transform: perspective(1000px) rotateX(-90deg);
+  transform-origin: top center;
+}
+
+.flip-in.show .ultra-modal {
+  transform: perspective(1000px) rotateX(0);
+}
+
+/* Add this to your existing styles */
+.location-badge {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  background-color: rgba(76, 201, 240, 0.1);
+  color: var(--info);
+  border-radius: 0.5rem;
+  font-size: 0.875em;
+  font-weight: 500;
+  border: 1px solid rgba(76, 201, 240, 0.2);
+}
+
+/* Add this important CSS fix for the location dropdown */
+.dropdown-menu.location-dropdown {
+  display: block !important;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 250px;
+}
+
+.location-dropdown .dropdown-item {
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+}
+
+.location-dropdown .dropdown-item i {
+  margin-right: 10px;
+  color: var(--primary);
+}
+
+/* This ensures dropdowns are visible and properly styled */
+.dropdown-menu {
+  display: none; 
+}
+
+.dropdown-menu.show {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Ultra Modern Header -->
+<div class="ultra-header animate-appear">
+  <div class="container">
+    <h1><i class="fas fa-users-cog me-2"></i>User Management</h1>
+    <p>Manage team members, assign roles and configure system access</p>
+  </div>
+</div>
+
+<div class="container page-container">
+  <!-- Search and Action Bar -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="search-box-ultra">
+        <i class="fas fa-search"></i>
+        <input type="text" id="userSearch" placeholder="Search users by name, email or location...">
+      </div>
+    </div>
+    
+    <div class="col-md-6 text-end">
+      <button id="refreshData" class="ultra-btn btn-outline me-2">
+        <i class="fas fa-sync-alt"></i>Refresh
+      </button>
+      <button type="button" class="ultra-btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+        <i class="fas fa-user-plus"></i>New User
+      </button>
+    </div>
+  </div>
+  
+  <!-- Filter Pills -->
+  <div class="mb-4">
+    <div class="ultra-filter-pill active" data-filter="all">
+      <i class="fas fa-users"></i>All Users ({{ users.count }})
+    </div>
+    <div class="ultra-filter-pill" data-filter="admin">
+      <i class="fas fa-user-shield"></i>Admins ({{ admin_count|default:"0" }})
+    </div>
+    <div class="ultra-filter-pill" data-filter="agent">
+      <i class="fas fa-user-tie"></i>Agents ({{ agent_count|default:"0" }})
+    </div>
+    <div class="ultra-filter-pill" data-filter="unassigned">
+      <i class="fas fa-user-clock"></i>Unassigned ({{ unassigned_count|default:"0" }})
+    </div>
+  </div>
+  
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="ultra-stat-card primary animate-appear" style="animation-delay: 0.1s">
+        <div class="ultra-stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div>
+          <div class="ultra-stat-value">{{ users.count }}</div>
+          <div class="ultra-stat-label">Total Users</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="ultra-stat-card secondary animate-appear" style="animation-delay: 0.2s">
+        <div class="ultra-stat-icon">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div>
+          <div class="ultra-stat-value">{{ admin_count|default:"0" }}</div>
+          <div class="ultra-stat-label">Administrators</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="ultra-stat-card warning animate-appear" style="animation-delay: 0.3s">
+        <div class="ultra-stat-icon">
+          <i class="fas fa-user-tie"></i>
+        </div>
+        <div>
+          <div class="ultra-stat-value">{{ agent_count|default:"0" }}</div>
+          <div class="ultra-stat-label">Agents</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="ultra-stat-card danger animate-appear" style="animation-delay: 0.4s">
+        <div class="ultra-stat-icon">
+          <i class="fas fa-user-clock"></i>
+        </div>
+        <div>
+          <div class="ultra-stat-value">{{ unassigned_count|default:"0" }}</div>
+          <div class="ultra-stat-label">Unassigned</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content Card -->
+  <div class="ultra-card animate-appear" style="animation-delay: 0.5s">
+    <h4 class="mb-4"><i class="fas fa-user-friends me-2"></i>Team Members</h4>
+    
+    {% if users %}
+      <div class="table-responsive">
+        <table class="ultra-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr data-user-id="{{ user.id }}">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="ultra-avatar {% if user.is_superuser %}superuser{% elif user.is_staff %}admin{% else %}agent{% endif %}">
+                      {{ user.username|slice:":2"|upper }}
+                    </div>
+                    <div class="ms-3">
+                      <div class="fw-semibold">{{ user.username }}</div>
+                      <div class="small text-muted">{{ user.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  {% if user.is_superuser %}
+                    <div class="ultra-badge superuser">
+                      <i class="fas fa-user-shield"></i>Superuser
+                    </div>
+                  {% elif user.is_staff %}
+                    <div class="ultra-badge admin">
+                      <i class="fas fa-user-shield"></i>Admin
+                    </div>
+                  {% else %}
+                    <div class="ultra-badge agent">
+                      <i class="fas fa-user-tie"></i>Agent
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.agentprofile and user.agentprofile.location %}
+                    <span class="location-badge">{{ user.agentprofile.location.name }}</span>
+                  {% else %}
+                    <span class="text-muted">Not assigned</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.is_active %}
+                    <span class="badge bg-success-subtle text-success">Active</span>
+                  {% else %}
+                    <span class="badge bg-danger-subtle text-danger">Inactive</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#assignLocationModal{{ user.id }}">
+                      <i class="fas fa-map-marker-alt me-1"></i>Assign Location
+                    </button>
+                    
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      <i class="fas fa-cog me-1"></i>More
+                    </button>
+                    <ul class="dropdown-menu">
+                      {% if not user.is_staff %}
+                        <li>
+                          <form method="post" action="{% url 'promote_user' user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-primary">
+                              <i class="fas fa-level-up-alt me-2"></i>Promote to Admin
+                            </button>
+                          </form>
+                        </li>
+                      {% else %}
+                        <li>
+                          <form method="post" action="{% url 'demote_user' user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-secondary">
+                              <i class="fas fa-level-down-alt me-2"></i>Demote to Agent
+                            </button>
+                          </form>
+                        </li>
+                      {% endif %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <form method="post" action="{% url 'reset_password' user.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="dropdown-item text-warning">
+                            <i class="fas fa-key me-2"></i>Reset Password
+                          </button>
+                        </form>
+                      </li>
+                      {% if not user.is_superuser %}
+                        <li>
+                          <form method="post" action="{% url 'deactivate_user' user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger">
+                              <i class="fas fa-user-slash me-2"></i>Deactivate
+                            </button>
+                          </form>
+                        </li>
+                        <li>
+                          <form method="post" action="{% url 'delete_user' user.id %}" onsubmit="return confirm('Are you sure you want to permanently delete this user? This action cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger">
+                              <i class="fas fa-trash-alt me-2"></i>Delete User
+                            </button>
+                          </form>
+                        </li>
+                      {% endif %}
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <div class="display-1 text-muted mb-3">
+          <i class="fas fa-users"></i>
+        </div>
+        <h4 class="text-muted">No users found</h4>
+        <p class="text-muted">Start by creating your first user</p>
+        <button type="button" class="ultra-btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#createUserModal">
+          <i class="fas fa-user-plus"></i>Create New User
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Floating Action Button -->
+<a href="#" class="ultra-fab animate-pulse-shadow" data-bs-toggle="modal" data-bs-target="#createUserModal">
+  <i class="fas fa-plus"></i>
+</a>
+
+<!-- Add modal for each user -->
+{% for user in users %}
+<!-- Location Assignment Modal for each user -->
+<div class="modal fade" id="assignLocationModal{{ user.id }}" tabindex="-1" aria-labelledby="assignLocationModalLabel{{ user.id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assignLocationModalLabel{{ user.id }}">Assign Location for {{ user.username }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="get" action="/direct-assign/{{ user.id }}/">
+          <div class="mb-3">
+            <label for="location{{ user.id }}" class="form-label">Select Location</label>
+            <select class="form-select form-control-modern" id="location{{ user.id }}" name="location" required>
+              <option value="">-- Select a Location --</option>
+              {% for location in locations %}
+                <option value="{{ location.id }}">{{ location.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="text-end mt-4">
+            <button type="button" class="btn-modern btn-modern-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-modern btn-modern-primary">Assign Location</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Modern Create User Modal -->
+<div class="modal fade modal-modern" id="createUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'create_user' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Create New User
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label-modern">Username</label>
+                        <input type="text" name="username" id="username" class="form-control form-control-modern" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label-modern">Email</label>
+                        <input type="email" name="email" id="email" class="form-control form-control-modern" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label-modern">Password</label>
+                        <input type="password" name="password" id="password" class="form-control form-control-modern" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new-user-location" class="form-label-modern">Location (Optional)</label>
+                        <select name="location" id="new-user-location" class="form-control form-control-modern">
+                            <option value="">-- No location --</option>
+                            {% for location in locations %}
+                                <option value="{{ location.id }}">{{ location.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="is_admin" id="is_admin">
+                        <label class="form-check-label" for="is_admin">
+                            Admin Privileges
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modern btn-modern-outline" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-modern btn-modern-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize interactive functionality for tables
+  initializeTables();
+  
+  // Initialize tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+  
+  // Initialize tables function
+  function initializeTables() {
+    // ... existing table initialization code ...
+  }
+
+  // Force modals to respond to interactions
+  const modals = document.querySelectorAll('.modal');
+  modals.forEach(modal => {
+    modal.addEventListener('shown.bs.modal', function() {
+      // Make sure form elements inside are accessible
+      const formElements = this.querySelectorAll('input, select, button');
+      formElements.forEach(el => {
+        el.style.display = 'block';
+        el.style.opacity = '1';
+        el.style.visibility = 'visible';
+      });
+    });
+  });
+
+  // Fix location dropdown visibility
+  const locationSelects = document.querySelectorAll('select[name="location"]');
+  locationSelects.forEach(select => {
+    select.style.display = 'block';
+    select.style.visibility = 'visible';
+    select.style.opacity = '1';
+  });
+
+  // Code for context menu
+  // ... existing context menu code ...
+  
+  // Add other interactive elements
+  // ... existing interactive elements code ...
+});
+</script>
+{% endblock %} 

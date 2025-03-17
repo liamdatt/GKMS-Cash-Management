@@ -1,0 +1,621 @@
+{% extends 'core/base.html' %}
+
+{% block extra_css %}
+<style>
+/* Teller Management Styles */
+.teller-header {
+  background: linear-gradient(135deg, #3a0ca3, #4361ee);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  box-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
+}
+
+.teller-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJkb3RzIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNCIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNkb3RzKSIgLz48L3N2Zz4=');
+  opacity: 0.6;
+}
+
+.teller-header .content {
+  position: relative;
+  z-index: 1;
+}
+
+.teller-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.teller-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 600px;
+}
+
+.teller-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  padding: 0;
+  margin-bottom: 2rem;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.teller-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.teller-card-header {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.teller-card-body {
+  padding: 1.5rem;
+}
+
+.teller-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.teller-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4361ee, #3a0ca3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.teller-details h5 {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.teller-details p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.balance-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.balance-row:last-child {
+  border-bottom: none;
+}
+
+.balance-label {
+  color: #6c757d;
+}
+
+.balance-value {
+  font-weight: 600;
+}
+
+.balance-value.positive {
+  color: #4cc9f0;
+}
+
+.balance-value.negative {
+  color: #f72585;
+}
+
+.teller-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.transaction-history {
+  margin-top: 1.5rem;
+}
+
+.transaction-history h6 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.transaction-table th {
+  font-weight: 600;
+  color: #495057;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.transaction-table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.transaction-table tr:last-child td {
+  border-bottom: none;
+}
+
+.transaction-amount {
+  font-weight: 600;
+}
+
+.transaction-amount.positive {
+  color: #4cc9f0;
+}
+
+.transaction-amount.negative {
+  color: #f72585;
+}
+
+.filter-section {
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.filter-section .form-group {
+  margin-bottom: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="teller-header">
+    <div class="content">
+      <h1>Teller Management</h1>
+      <p>Manage your tellers and their cash balances. Track transactions and adjust balances as needed.</p>
+      
+      <div class="d-flex mt-4">
+        <button class="btn btn-light me-2" data-bs-toggle="modal" data-bs-target="#newTellerModal">
+          <i class="fas fa-user-plus me-2"></i>Add New Teller
+        </button>
+        <button class="btn btn-outline-light" onclick="printTellerReport()">
+          <i class="fas fa-print me-2"></i>Print Report
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="filter-section">
+    <div class="row align-items-center">
+      <div class="col-md-4">
+        <div class="form-group">
+          <label for="location-filter" class="form-label">Location</label>
+          <select id="location-filter" class="form-select" onchange="filterTellers()">
+            <option value="">All Locations</option>
+            {% for location in locations %}
+              <option value="{{ location.name }}">{{ location.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+          <label for="search-filter" class="form-label">Search</label>
+          <input type="text" id="search-filter" class="form-control" placeholder="Search tellers..." oninput="filterTellers()">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+          <label for="sort-filter" class="form-label">Sort By</label>
+          <select id="sort-filter" class="form-select" onchange="filterTellers()">
+            <option value="name">Name</option>
+            <option value="balance-high">Balance (High to Low)</option>
+            <option value="balance-low">Balance (Low to High)</option>
+            <option value="activity">Recent Activity</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    {% for teller in tellers %}
+    <div class="col-md-6 col-lg-4 teller-item">
+      <div class="teller-card">
+        <div class="teller-card-header">
+          <h5>{{ teller.name }}</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#" onclick="viewTellerDetails({{ teller.id }})"><i class="fas fa-eye me-2"></i>View Details</a></li>
+              <li><a class="dropdown-item" href="#" onclick="editTeller({{ teller.id }})"><i class="fas fa-edit me-2"></i>Edit</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" onclick="removeTeller({{ teller.id }})"><i class="fas fa-trash-alt me-2"></i>Remove</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="teller-card-body">
+          <div class="teller-info">
+            <div class="teller-avatar">
+              {{ teller.name|slice:":1" }}
+            </div>
+            <div class="teller-details">
+              <h5>{{ teller.name }}</h5>
+              <p>{{ teller.position }}</p>
+            </div>
+          </div>
+          
+          <div class="balance-row">
+            <div class="balance-label">Opening Balance</div>
+            <div class="balance-value">${{ teller.opening_balance|floatformat:2 }}</div>
+          </div>
+          <div class="balance-row">
+            <div class="balance-label">Current Balance</div>
+            <div class="balance-value">${{ teller.current_balance|floatformat:2 }}</div>
+          </div>
+          <div class="balance-row">
+            <div class="balance-label">Net Change</div>
+            {% with net_change=teller.current_balance|sub:teller.opening_balance %}
+              {% if net_change > 0 %}
+                <div class="balance-value positive">+${{ net_change|floatformat:2 }}</div>
+              {% elif net_change < 0 %}
+                <div class="balance-value negative">-${{ net_change|abs|floatformat:2 }}</div>
+              {% else %}
+                <div class="balance-value">$0.00</div>
+              {% endif %}
+            {% endwith %}
+          </div>
+          
+          <div class="teller-actions">
+            <button class="btn btn-primary" onclick="addTransaction({{ teller.id }})">
+              <i class="fas fa-exchange-alt me-2"></i>Add Transaction
+            </button>
+            <button class="btn btn-secondary" onclick="adjustBalance({{ teller.id }})">
+              <i class="fas fa-balance-scale me-2"></i>Adjust
+            </button>
+          </div>
+          
+          <div class="transaction-history">
+            <h6>Recent Transactions</h6>
+            {% if teller.transactions %}
+            <div class="table-responsive">
+              <table class="transaction-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for transaction in teller.transactions|slice:":3" %}
+                  <tr>
+                    <td>{{ transaction.timestamp|date:"g:i A" }}</td>
+                    <td>{{ transaction.type }}</td>
+                    <td>
+                      {% if transaction.amount > 0 %}
+                        <span class="transaction-amount positive">+${{ transaction.amount|floatformat:2 }}</span>
+                      {% else %}
+                        <span class="transaction-amount negative">-${{ transaction.amount|abs|floatformat:2 }}</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No recent transactions.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center my-5">
+      <div style="font-size: 4rem; color: #e9ecef; margin-bottom: 1.5rem;">
+        <i class="fas fa-user-friends"></i>
+      </div>
+      <h3>No Tellers Added Yet</h3>
+      <p class="text-muted">Add your first teller to start managing cash balances.</p>
+      <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#newTellerModal">
+        <i class="fas fa-user-plus me-2"></i>Add New Teller
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- New Teller Modal -->
+<div class="modal fade" id="newTellerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Teller</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="{% url 'add_teller' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Teller Name</label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Position</label>
+            <input type="text" name="position" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Opening Balance</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" name="opening_balance" class="form-control" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Teller</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction Modal -->
+<div class="modal fade" id="transactionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Transaction</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="{% url 'add_transaction' %}">
+        {% csrf_token %}
+        <input type="hidden" name="teller_id" id="transaction_teller_id">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Transaction Type</label>
+            <select name="transaction_type" class="form-select" required>
+              <option value="cash_in">Cash In</option>
+              <option value="cash_out">Cash Out</option>
+              <option value="transfer">Transfer</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Amount</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" name="amount" class="form-control" step="0.01" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Adjust Balance Modal -->
+<div class="modal fade" id="adjustBalanceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Adjust Balance</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="{% url 'adjust_balance' %}">
+        {% csrf_token %}
+        <input type="hidden" name="teller_id" id="adjust_teller_id">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Adjustment Type</label>
+            <select name="adjustment_type" class="form-select" required>
+              <option value="correction">Correction</option>
+              <option value="overage">Overage</option>
+              <option value="shortage">Shortage</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Amount</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" name="amount" class="form-control" step="0.01" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Reason</label>
+            <textarea name="reason" class="form-control" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Apply Adjustment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Animate teller cards on page load
+  document.querySelectorAll('.teller-card').forEach((card, index) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    }, 100 + (index * 100));
+  });
+});
+
+function filterTellers() {
+  // This function would filter the tellers based on selected filters
+  console.log('Filtering tellers...');
+  
+  const locationFilter = document.getElementById('location-filter').value;
+  const searchFilter = document.getElementById('search-filter').value.toLowerCase();
+  const sortFilter = document.getElementById('sort-filter').value;
+  
+  // In a real application, this would send an AJAX request or filter client-side
+  // For this example, we'll simulate the filtering effect
+  document.querySelectorAll('.teller-item').forEach(item => {
+    let showItem = true;
+    
+    // Location filter
+    if (locationFilter) {
+      const locationElement = item.querySelector('.teller-details p');
+      if (locationElement && !locationElement.textContent.includes(locationFilter)) {
+        showItem = false;
+      }
+    }
+    
+    // Search filter
+    if (searchFilter && !item.textContent.toLowerCase().includes(searchFilter)) {
+      showItem = false;
+    }
+    
+    // Apply visibility
+    if (showItem) {
+      item.style.display = '';
+      
+      // Animate in if previously hidden
+      if (item.style.opacity === '0') {
+        setTimeout(() => {
+          item.style.opacity = '1';
+          item.style.transform = 'translateY(0)';
+        }, 100);
+      }
+    } else {
+      item.style.opacity = '0';
+      item.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        item.style.display = 'none';
+      }, 300);
+    }
+  });
+  
+  // Sort functionality would be implemented here
+  // This would require more complex DOM manipulation
+}
+
+function addTransaction(tellerId) {
+  // Set the teller ID in the hidden field
+  document.getElementById('transaction_teller_id').value = tellerId;
+  
+  // Show the modal
+  const modal = new bootstrap.Modal(document.getElementById('transactionModal'));
+  modal.show();
+}
+
+function adjustBalance(tellerId) {
+  // Set the teller ID in the hidden field
+  document.getElementById('adjust_teller_id').value = tellerId;
+  
+  // Show the modal
+  const modal = new bootstrap.Modal(document.getElementById('adjustBalanceModal'));
+  modal.show();
+}
+
+function viewTellerDetails(tellerId) {
+  // View detailed information about a teller
+  console.log(`Viewing details for teller ${tellerId}`);
+  
+  // In a real application, this would navigate to a detailed view page
+  window.location.href = `/tellers/${tellerId}/`;
+}
+
+function editTeller(tellerId) {
+  // Edit a teller
+  console.log(`Editing teller ${tellerId}`);
+  
+  // In a real application, this would open a modal with a form
+  // prefilled with the teller details
+}
+
+function removeTeller(tellerId) {
+  // Remove a teller
+  console.log(`Removing teller ${tellerId}`);
+  
+  if (confirm('Are you sure you want to remove this teller? This action cannot be undone.')) {
+    // In a real application, this would send an AJAX request to delete the teller
+    // For now, just simulate a POST request with a form submission
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/tellers/${tellerId}/remove/`;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    form.appendChild(csrfInput);
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+function printTellerReport() {
+  // Print a report of all tellers
+  console.log('Printing teller report...');
+  
+  // Add print styles dynamically
+  const style = document.createElement('style');
+  style.innerHTML = `
+    @media print {
+      body { background: white; }
+      .container { max-width: 100%; padding: 0; }
+      .teller-header, .filter-section, .teller-actions, .dropdown, nav, footer { display: none !important; }
+      .teller-card { box-shadow: none !important; transform: none !important; page-break-inside: avoid; }
+      .teller-card:hover { transform: none !important; }
+      .row { display: block; }
+      .col-md-6, .col-lg-4 { width: 100%; max-width: 100%; flex: none; }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Print the page
+  window.print();
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,166 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}View EOD Reports{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">End of Day Reports</h1>
+        <div class="d-flex">
+            <form class="d-flex me-2" method="get">
+                <input class="form-control me-2" type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+                <button class="btn btn-outline-primary" type="submit">Filter</button>
+            </form>
+            <a href="{% url 'view_eod_reports' %}" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">EOD Report Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h3 class="h5">Total Reports</h3>
+                            <h2 class="mb-0">{{ reports_count }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h3 class="h5">Pending Review</h3>
+                            <h2 class="mb-0">{{ pending_count }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h3 class="h5">With Variances</h3>
+                            <h2 class="mb-0">{{ variance_count }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Opening Balance</th>
+                            <th>Cash Delivered</th>
+                            <th>Closing Balance</th>
+                            <th>Variance</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td>{{ report.location.name }}</td>
+                            <td>{{ report.processing_date|date:"M d, Y" }}</td>
+                            <td>${{ report.opening_balance|floatformat:2 }}</td>
+                            <td>${{ report.cash_delivered|floatformat:2 }}</td>
+                            <td>${{ report.closing_balance|floatformat:2 }}</td>
+                            <td class="
+                                {% if report.variance > 0 %}text-warning
+                                {% elif report.variance < 0 %}text-danger
+                                {% else %}text-success{% endif %}
+                            ">
+                                ${{ report.variance|floatformat:2 }}
+                            </td>
+                            <td>
+                                {% if report.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif report.status == 'approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif report.status == 'rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'review_eod_report' report.id %}" class="btn btn-sm btn-primary">
+                                    {% if report.status == 'pending' %}Review{% else %}View Details{% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No EOD reports found for the selected date.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if reports.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if reports.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if selected_date %}&date={{ selected_date|date:'Y-m-d' }}{% endif %}">&laquo; First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reports.previous_page_number }}{% if selected_date %}&date={{ selected_date|date:'Y-m-d' }}{% endif %}">Previous</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo; First</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in reports.paginator.page_range %}
+                        {% if reports.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% elif i > reports.number|add:'-3' and i < reports.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}{% if selected_date %}&date={{ selected_date|date:'Y-m-d' }}{% endif %}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if reports.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reports.next_page_number }}{% if selected_date %}&date={{ selected_date|date:'Y-m-d' }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reports.paginator.num_pages }}{% if selected_date %}&date={{ selected_date|date:'Y-m-d' }}{% endif %}">Last &raquo;</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Last &raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

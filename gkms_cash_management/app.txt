@@ -1,0 +1,141 @@
+Executive Summary 
+
+GK Money Services Ltd. (GKMS) is the franchise owner and operator of the Wester Union franchise 
+in Jamaica and the eastern Caribbean. The company has a large network of “agents” which operate 
+island wide to distribute cash remittances to clients. 
+
+GKMS head office is responsible for supplying cash to a number of these agents on a daily basis in 
+order for them to carry out their day to day business. Currently the management of these cash 
+distributions is done through emails and phone conversations, this method has proven to be  
+unreliable and disorganized as well as error prone. 
+
+Solution 
+
+GKMS are in need of a cash management system which allows for their different agents to input 
+cash related data into a central system from which head office can log into and view specific 
+statistics to influence their cash distribution on a day to day basis. 
+
+The application will have two categories of users 
+
+1. Agents  
+   a. Approximately 100+ agents  
+      i. Application will need ability to add agents over time  
+   b. Agents will enter cash related data into system on a daily basis such as  
+      i. Cash received  
+      ii. Cash required on a daily basis  
+
+2. Admin  
+   a. Approximately less than 10 admin users  
+      i. Will need to be able to see the data of all agent locations  
+      ii. Will need to be able to generate csv/excel reports in a specified format based on specific agent data on a day-to-day basis  
+
+Key Features of application 
+
+- Ability for agents to enter data into system, notifying admin users when these updates are made 
+- Have preset cutoff times which prevent agents to enter data after a specific time period (to be outlined in appendix) 
+- Each agent will have specified limits such as insurance limit, vault etc, system must factor these limits in specific calculation (to be outlined in appendix) 
+- Ability to add more agent locations over time 
+- Admin panel and dashboard displaying agent data  
+  o Lookup/Dropdown to display specific agent data 
+
+Cash Management Process: Agent data collection interface – Requirements 
+
+Developed by: Orrett Walsh, Dervin Grant, Nicki Franklin  
+Reviewed by: Romario Creary, Marsonnette Roberts, Dervin Grant, Charlene Campbell, Nicki Franklin  
+Review Date: 18 September 2024  
+Signed off by: Romario Creary, Emil Williams  
+Signoff date: 19 September 2024  
+
+1) Display current date 
+
+2) Agent is only able to see and enter information relevant to their location 
+
+3) The following information to be displayed to allow the agent a summary of the cash balance at 3 pm: 
+
+   a. End of day balance for previous day  
+      i. Pull from EFT  
+      ii. Display amount, numeric only  
+   b. Cash delivered to location by courier today  
+      i. Allow upload of courier spreadsheet  
+      ii. Display Amount (numeric only)  
+   c. Payout as at 3 pm today  
+      i. Pull from Remote Services  
+      ii. Display Amount (numeric only)  
+   d. WU Insurance Limit (crystal bailey)  
+      i. Static field that pulls info  
+      ii. The info may change at the back end  
+   e. Vault Cash Limit (to be obtained from Crystal Bailey)  
+      i. EOD limit  
+      ii. Working day limit  
+   f. Calculations:  
+      i. Cash position as at 3 pm today: EOD balance previous day + cash delivered today – payout at 3 pm today  
+      ii. Projected ending position for today: Average payout for today - today’s cash position at 3 pm (assumption no additional cash being requested)  
+      iii. Calculation of amount that may be needed tomorrow: Ending position for today - projected next day activity  
+      iv. Does iii above exceed insurance limit. Yes or no. If yes, generate message: Further enquiry into cash balance held at location?  
+      v. Does iii above exceed the EOD limit? Yes or no. If yes, generate message: Further enquiry into cash balance held at location?  
+      vi. Does iii above exceed the Working Day limit? Yes or no. If yes, generate message: Further enquiry into cash balance held at location?  
+      vii. Assumptions:  
+         1. Use 3-month historical data from EFT (except for seasonal periods, i.e., Christmas, Easter, Back to School, Mother's Day, etc.)  
+         2. For seasonal periods, use the similar period last year  
+         3. BX and FX Transfers done at the end of the day will be projected based on historical data.  
+
+4) Agent to enter the following information  
+   a. Verify cash delivered to the location today by the courier (from 3 b above)  
+      i. Agent can confirm amount received is correct (Y/N), and enter amount if different (numeric only)  
+      ii. Enter initials of persons who counted cash – Person 1, Person 2 (2 alpha only)  
+   b. Request cash required for next day and additional cash for today  
+      i. Definitions  
+         1. Cash Required for delivery next day –  
+            a. Agent to enter by 3:00 pm, and allow 30 minutes allowance for late entry  
+         2. Additional Cash required for delivery today –  
+            a. Requests can be made throughout the day  
+      ii. Allow agent to request cash order for delivery tomorrow AND/OR additional cash for delivery today – perhaps a drop down.  
+      iii. Allow entry of cash required for Saturday and Sunday and public holidays  
+      iv. Date: default next day or another day, and today for additional cash  
+      v. Agent to specify USD cash required (numeric, no commas)  
+         1. Select denomination packets – 100, 50, 20, 10, 1 (numeric only)  
+         2. The denominations selected will determine the total figure being requested  
+         3. Generate msg that amount requested exceeds insurance lor vault limit  
+      vi. Agent to specify JMD cash required (numeric, no commas)  
+         1. Select denomination packets – 5000, 2000, 1000, 500, 100, 50 (numeric only)  
+         2. The denominations selected will determine the total figure being requested  
+         3. Generate msg that amount requested exceeds insurance or vault limit  
+
+5) Cash management team to be able to generate and send cash request from 4b above to courier  
+   a. For next day and subsequent days  
+   b. For additional cash for today  
+   c. Cash request is ordered as follows:  
+      i. Denomination packets – 100, 50, 20, 10, 1 (numeric only)  
+      ii. Denominations selected will determine the total figure being requested  
+   d. The courier will deliver cash based on the denomination packets identified  
+
+6) Agent to enter EOD info as follows (data requested taken from current Infobuzz form):  
+   a. Today’s transactions  
+      i. Processing date: default previous day (allow to change as required)  
+      ii. EOD balance in JMD (inclusive of funds received from BXP and Webex) (numeric only, no commas)  
+      iii. Funds received from BXP and Webex vaults (numeric only, no commas)  
+      iv. Cash sent to Courier  
+         1. Was cash sent to the courier? Y/N  
+         2. If yes, USD amount sent (numeric only, no commas)  
+         3. If yes, JMD Amount sent? (numeric only, no commas)  
+         4. USD receipt no (numeric only)  
+         5. JMD receipt no (numeric only)  
+      v. Teller balancing  
+         1. Were all tellers balanced – Y/N  
+         2. If yes, enter teller no (2 numeric chars) and amount over (numeric only) (as many as required)  
+         3. Total variance (calculated from 2 above)  
+   b. Adjustments, Refunds, Cancellations  
+      i. Enter MTCN (10 numeric)  
+      ii. Enter USD amount  
+      iii. Enter JMD amount  
+
+7) Upload information to source systems  
+   a. Consider uploading the following to EFT  
+      i. Amount courier disbursed today (FX amount will be auto uploaded to PCFX)  
+      ii. Amount agent received today  
+      iii. Generate exception report for variance  
+
+8) Allow scalability of code  
+   a. Space is dynamic  
+   b. New products and decisions will need to be accommodated  
+   c. Allow for additional functionality

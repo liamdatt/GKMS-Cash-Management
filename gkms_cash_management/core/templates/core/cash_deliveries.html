@@ -1,0 +1,850 @@
+{% extends 'core/base.html' %}
+
+{% block extra_css %}
+<style>
+/* Cash Delivery Tracking Styles */
+.delivery-header {
+  background: linear-gradient(135deg, #3a0ca3, #4361ee);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  box-shadow: 0 15px 30px rgba(67, 97, 238, 0.15);
+}
+
+.delivery-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJkb3RzIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNCIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNkb3RzKSIgLz48L3N2Zz4=');
+  opacity: 0.6;
+}
+
+.delivery-header .accent-light {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  z-index: 0;
+  animation: glow 6s infinite;
+}
+
+@keyframes glow {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+.delivery-header .accent-light:nth-child(1) {
+  top: -30px;
+  right: 10%;
+  background: #f72585;
+}
+
+.delivery-header .accent-light:nth-child(2) {
+  bottom: -30px;
+  left: 15%;
+  background: #4cc9f0;
+  animation-delay: 2s;
+}
+
+.delivery-header .content {
+  position: relative;
+  z-index: 1;
+}
+
+.delivery-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.delivery-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 600px;
+}
+
+.delivery-stats {
+  display: flex;
+  margin-top: 1.5rem;
+  gap: 2rem;
+}
+
+.delivery-stat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.delivery-stat:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.delivery-stat .value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.delivery-stat .label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Timeline styles */
+.delivery-timeline {
+  position: relative;
+  margin: 3rem 0;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 114px;
+  width: 4px;
+  background: linear-gradient(to bottom, #4361ee, #4cc9f0);
+  border-radius: 2px;
+  z-index: 0;
+}
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  background: linear-gradient(135deg, #4361ee, #3a0ca3);
+  position: relative;
+  margin-right: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.timeline-icon::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.4;
+}
+
+.timeline-date {
+  width: 70px;
+  text-align: right;
+  margin-right: 2.5rem;
+  font-weight: 600;
+  color: #495057;
+  flex-shrink: 0;
+}
+
+.timeline-content {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  flex-grow: 1;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  position: relative;
+  transition: all 0.3s;
+}
+
+.timeline-content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-content::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 16px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.timeline-content h5 {
+  margin-top: 0;
+  color: #212529;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timeline-content p {
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+}
+
+.timeline-content .details {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.timeline-content .details .row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.timeline-content .details .row:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-content .details .label {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.timeline-content .details .value {
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.375rem;
+}
+
+.status-badge.delivered {
+  background-color: rgba(76, 201, 240, 0.15);
+  color: #4895ef;
+}
+
+.status-badge.in-transit {
+  background-color: rgba(252, 163, 17, 0.15);
+  color: #e76f51;
+}
+
+.status-badge.scheduled {
+  background-color: rgba(58, 12, 163, 0.15);
+  color: #3a0ca3;
+}
+
+.status-badge.pending {
+  background-color: rgba(173, 181, 189, 0.15);
+  color: #6c757d;
+}
+
+/* Delivery card styles */
+.delivery-card {
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.delivery-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
+}
+
+.delivery-card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Add new delivery button */
+.add-delivery-btn {
+  background: linear-gradient(135deg, #4361ee, #3a0ca3);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.add-delivery-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+.add-delivery-btn i {
+  margin-right: 0.75rem;
+}
+
+/* Filter styles */
+.filter-container {
+  display: flex;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  background: white;
+  border-radius: 50px;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  color: #495057;
+  transition: all 0.3s;
+}
+
+.filter-item:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.filter-item i {
+  margin-right: 0.75rem;
+  color: #4361ee;
+}
+
+.filter-item select, 
+.filter-item input {
+  border: none;
+  background: transparent;
+  color: #495057;
+  font-weight: 500;
+  outline: none;
+  width: auto;
+}
+
+/* Table styles */
+.delivery-table {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.delivery-table th {
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  color: #495057;
+  text-align: left;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.delivery-table td {
+  padding: 1.25rem 1.5rem;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.delivery-table tr:last-child td {
+  border-bottom: none;
+}
+
+.delivery-table tr {
+  transition: all 0.2s;
+}
+
+.delivery-table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.delivery-amount {
+  font-weight: 600;
+  color: #212529;
+}
+
+/* Map container */
+.map-container {
+  height: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  background: #f8f9fa;
+  position: relative;
+}
+
+.map-container .map-overlay {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Media queries */
+@media (max-width: 992px) {
+  .delivery-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .timeline-date {
+    width: auto;
+    margin-right: 1.5rem;
+  }
+  
+  .timeline-line {
+    left: 74px;
+  }
+}
+
+@media (max-width: 768px) {
+  .delivery-header {
+    padding: 2rem;
+  }
+  
+  .delivery-header h1 {
+    font-size: 2rem;
+  }
+  
+  .filter-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-item {
+    width: 100%;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="delivery-header">
+    <!-- Add accent lights -->
+    <div class="accent-light"></div>
+    <div class="accent-light"></div>
+    
+    <div class="content">
+      <h1>Cash Delivery Tracking</h1>
+      <p>Monitor and track all cash deliveries across your locations</p>
+      
+      <div class="delivery-stats">
+        <div class="delivery-stat">
+          <div class="value">{{ total_deliveries }}</div>
+          <div class="label">Total Deliveries</div>
+        </div>
+        <div class="delivery-stat">
+          <div class="value">${{ total_amount|floatformat:2 }}</div>
+          <div class="label">Total Amount Delivered</div>
+        </div>
+        <div class="delivery-stat">
+          <div class="value">{{ in_transit_count }}</div>
+          <div class="label">In Transit</div>
+        </div>
+        <div class="delivery-stat">
+          <div class="value">{{ scheduled_count }}</div>
+          <div class="label">Scheduled</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">Delivery Schedule</h2>
+    
+    <button class="add-delivery-btn" data-bs-toggle="modal" data-bs-target="#addDeliveryModal">
+      <i class="fas fa-plus"></i> Add New Delivery
+    </button>
+  </div>
+  
+  <div class="filter-container">
+    <div class="filter-item">
+      <i class="fas fa-calendar-alt"></i>
+      <input type="text" id="date-filter" placeholder="Select date range" class="date-picker">
+    </div>
+    <div class="filter-item">
+      <i class="fas fa-map-marker-alt"></i>
+      <select id="location-filter">
+        <option value="">All Locations</option>
+        {% for location in locations %}
+        <option value="{{ location.id }}">{{ location.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-item">
+      <i class="fas fa-filter"></i>
+      <select id="status-filter">
+        <option value="">All Statuses</option>
+        <option value="delivered">Delivered</option>
+        <option value="in-transit">In Transit</option>
+        <option value="scheduled">Scheduled</option>
+      </select>
+    </div>
+    <div class="filter-item">
+      <i class="fas fa-search"></i>
+      <input type="text" id="search-filter" placeholder="Search...">
+    </div>
+  </div>
+  
+  <div class="map-container">
+    <div id="deliveryMap"></div>
+    <div class="map-overlay">
+      <div class="h6 mb-2">Delivery Routes</div>
+      <div class="small text-muted mb-2">Showing current and upcoming deliveries</div>
+      <div class="d-flex gap-3">
+        <div class="small"><span class="status-indicator status-delivered me-1"></span> Delivered</div>
+        <div class="small"><span class="status-indicator status-in-transit me-1"></span> In Transit</div>
+        <div class="small"><span class="status-indicator status-scheduled me-1"></span> Scheduled</div>
+      </div>
+    </div>
+  </div>
+  
+  {% if deliveries %}
+  <div class="table-responsive delivery-table">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Delivery ID</th>
+          <th>Location</th>
+          <th>Amount</th>
+          <th>Scheduled Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for delivery in deliveries %}
+        <tr>
+          <td>{{ delivery.id }}</td>
+          <td>{{ delivery.location.name }}</td>
+          <td class="delivery-amount">${{ delivery.amount|floatformat:2 }}</td>
+          <td>{{ delivery.scheduled_date|date:"M d, Y" }}</td>
+          <td>
+            {% if delivery.status == 'delivered' %}
+              <span class="status-badge delivered">Delivered</span>
+            {% elif delivery.status == 'in-transit' %}
+              <span class="status-badge in-transit">In Transit</span>
+            {% elif delivery.status == 'scheduled' %}
+              <span class="status-badge scheduled">Scheduled</span>
+            {% else %}
+              <span class="status-badge pending">Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary" onclick="showDeliveryDetails({{ delivery.id }})">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-info" onclick="editDelivery({{ delivery.id }})">
+                <i class="fas fa-edit"></i>
+              </button>
+              {% if delivery.status != 'delivered' %}
+              <button class="btn btn-sm btn-outline-success" onclick="markAsDelivered({{ delivery.id }})">
+                <i class="fas fa-check"></i>
+              </button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="delivery-timeline">
+    <div class="timeline-line"></div>
+    
+    {% for delivery in recent_deliveries %}
+    <div class="timeline-item">
+      <div class="timeline-date">{{ delivery.delivery_date|date:"M d" }}</div>
+      <div class="timeline-icon">
+        <i class="fas fa-truck"></i>
+      </div>
+      <div class="timeline-content">
+        <h5>
+          Cash Delivery to {{ delivery.location.name }}
+          {% if delivery.status == 'delivered' %}
+            <span class="status-badge delivered">Delivered</span>
+          {% elif delivery.status == 'in-transit' %}
+            <span class="status-badge in-transit">In Transit</span>
+          {% elif delivery.status == 'scheduled' %}
+            <span class="status-badge scheduled">Scheduled</span>
+          {% else %}
+            <span class="status-badge pending">Pending</span>
+          {% endif %}
+        </h5>
+        <p>{{ delivery.delivery_notes }}</p>
+        
+        <div class="details">
+          <div class="row">
+            <div class="label">Delivery ID</div>
+            <div class="value">{{ delivery.id }}</div>
+          </div>
+          <div class="row">
+            <div class="label">Amount</div>
+            <div class="value">${{ delivery.amount|floatformat:2 }}</div>
+          </div>
+          <div class="row">
+            <div class="label">Carrier</div>
+            <div class="value">{{ delivery.carrier }}</div>
+          </div>
+          <div class="row">
+            <div class="label">Tracking</div>
+            <div class="value">{{ delivery.tracking_number }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <div class="display-1 text-muted mb-3">
+      <i class="fas fa-truck"></i>
+    </div>
+    <h4 class="text-muted">No deliveries found</h4>
+    <p class="text-muted">Start by creating your first cash delivery</p>
+    <button class="add-delivery-btn mt-3" data-bs-toggle="modal" data-bs-target="#addDeliveryModal">
+      <i class="fas fa-plus"></i> Add New Delivery
+    </button>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Delivery Modal -->
+<div class="modal fade" id="addDeliveryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Schedule New Cash Delivery</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="{% url 'create_delivery' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Location</label>
+                <select name="location" class="form-select" required>
+                  <option value="">Select Location</option>
+                  {% for location in locations %}
+                  <option value="{{ location.id }}">{{ location.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Delivery Amount</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" name="amount" class="form-control" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Scheduled Date</label>
+                <input type="date" name="scheduled_date" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Carrier</label>
+                <input type="text" name="carrier" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Tracking Number</label>
+                <input type="text" name="tracking_number" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Notes</label>
+                <textarea name="notes" class="form-control" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Schedule Delivery</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize map for delivery tracking
+  initializeDeliveryMap();
+  
+  // Add animation to timeline items
+  document.querySelectorAll('.timeline-item').forEach((item, index) => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(20px)';
+    item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    
+    setTimeout(() => {
+      item.style.opacity = '1';
+      item.style.transform = 'translateY(0)';
+    }, 300 + (index * 150));
+  });
+  
+  // Initialize date picker
+  if (typeof flatpickr !== 'undefined') {
+    flatpickr("#date-filter", {
+      mode: "range",
+      dateFormat: "Y-m-d",
+      onChange: function(selectedDates, dateStr, instance) {
+        // Filter deliveries based on date range
+        filterDeliveries();
+      }
+    });
+  }
+  
+  // Add event listeners to filters
+  document.getElementById('location-filter').addEventListener('change', filterDeliveries);
+  document.getElementById('status-filter').addEventListener('change', filterDeliveries);
+  document.getElementById('search-filter').addEventListener('input', filterDeliveries);
+});
+
+function initializeDeliveryMap() {
+  // This function would initialize a map with delivery routes
+  // For demonstration, we're showing a placeholder
+  if (document.getElementById('deliveryMap')) {
+    // If using Mapbox, Google Maps, or other mapping library,
+    // initialize the map here
+    
+    // For this example, let's create a placeholder
+    const mapElement = document.getElementById('deliveryMap');
+    mapElement.style.width = '100%';
+    mapElement.style.height = '100%';
+    mapElement.style.backgroundColor = '#e9ecef';
+    mapElement.innerHTML = `
+      <div style="display: flex; justify-content: center; align-items: center; height: 100%; flex-direction: column;">
+        <div style="font-size: 3rem; color: #adb5bd; margin-bottom: 1rem;">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <div style="color: #6c757d; font-weight: 500;">Interactive delivery map would load here</div>
+        <div style="color: #adb5bd; font-size: 0.875rem; margin-top: 0.5rem;">
+          Requires Mapbox, Google Maps, or similar API integration
+        </div>
+      </div>
+    `;
+  }
+}
+
+function filterDeliveries() {
+  // This function would filter the deliveries based on selected filters
+  console.log('Filtering deliveries...');
+  
+  const locationFilter = document.getElementById('location-filter').value;
+  const statusFilter = document.getElementById('status-filter').value;
+  const searchFilter = document.getElementById('search-filter').value.toLowerCase();
+  const dateFilter = document.getElementById('date-filter').value;
+  
+  // In a real application, this would send an AJAX request or filter client-side
+  // For this example, we'll simulate the filtering effect
+  document.querySelectorAll('.delivery-table tbody tr').forEach(row => {
+    let showRow = true;
+    
+    // Location filter
+    if (locationFilter && row.cells[1].textContent !== locationFilter) {
+      showRow = false;
+    }
+    
+    // Status filter
+    if (statusFilter) {
+      const statusCell = row.cells[4].querySelector('.status-badge');
+      if (statusCell && !statusCell.classList.contains(statusFilter)) {
+        showRow = false;
+      }
+    }
+    
+    // Search filter
+    if (searchFilter && !row.textContent.toLowerCase().includes(searchFilter)) {
+      showRow = false;
+    }
+    
+    // Apply visibility
+    row.style.display = showRow ? '' : 'none';
+  });
+}
+
+function showDeliveryDetails(id) {
+  // Show detailed information about a delivery
+  console.log(`Showing details for delivery ${id}`);
+  
+  // In a real application, this would open a modal with delivery details
+  // or navigate to a detailed view page
+}
+
+function editDelivery(id) {
+  // Edit a delivery
+  console.log(`Editing delivery ${id}`);
+  
+  // In a real application, this would open a modal with a form
+  // prefilled with the delivery details
+}
+
+function markAsDelivered(id) {
+  // Mark a delivery as delivered
+  console.log(`Marking delivery ${id} as delivered`);
+  
+  if (confirm('Are you sure you want to mark this delivery as delivered?')) {
+    // In a real application, this would send an AJAX request to update the status
+    // For this example, let's just show a success message
+    const toast = document.createElement('div');
+    toast.className = 'toast position-fixed bottom-0 end-0 m-4';
+    toast.style.zIndex = '1050';
+    
+    toast.innerHTML = `
+      <div class="toast-header bg-success text-white">
+        <i class="fas fa-check-circle me-2"></i>
+        <strong class="me-auto">Success</strong>
+        <small>Just now</small>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body">
+        Delivery #${id} has been marked as delivered.
+      </div>
+    `;
+    
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // Update the UI to reflect the change
+    const statusCell = document.querySelector(`tr[data-id="${id}"] td:nth-child(5)`);
+    if (statusCell) {
+      statusCell.innerHTML = '<span class="status-badge delivered">Delivered</span>';
+    }
+  }
+}
+</script>
+{% endblock %} 

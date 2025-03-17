@@ -1,0 +1,260 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Pass hide_navbar to parent template -->
+<div class="login-page">
+  <div class="brand-container">
+    <a href="{% url 'landing_page' %}" class="brand-link">
+      <span class="brand-icon"><i class="fas fa-coins"></i></span>
+      <span class="brand-text">GKMS Cash Management</span>
+    </a>
+    
+    <div class="auth-links">
+      <a href="{% url 'login' %}" class="auth-link active">
+        <i class="fas fa-sign-in-alt me-1"></i> Login
+      </a>
+      <a href="{% url 'signup' %}" class="auth-link">
+        <i class="fas fa-user-plus me-1"></i> Sign Up
+      </a>
+    </div>
+  </div>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header text-center">
+        <div class="login-icon">
+          <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <h1>Welcome Back</h1>
+        <p class="text-muted">Sign in to access the cash management system</p>
+      </div>
+
+      {% if form.errors %}
+      <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <strong>Login failed!</strong> Please check your username and password.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endif %}
+      
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <form method="post" class="login-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        
+        <div class="form-group mb-3">
+          <label for="id_username">Username</label>
+          <input type="text" class="form-control" id="id_username" name="username" placeholder="Enter your username" required autofocus>
+        </div>
+        
+        <div class="form-group mb-4">
+          <label for="id_password">Password</label>
+          <input type="password" class="form-control" id="id_password" name="password" placeholder="Enter your password" required>
+        </div>
+        
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+          </button>
+        </div>
+      </form>
+
+      <div class="text-center mt-4">
+        <p>Don't have an account? <a href="{% url 'signup' %}" class="create-account-link">Create Account</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="copyright-text">
+    <p>&copy; 2025 GKMS Cash Management. All rights reserved.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .login-page {
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  .brand-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    color: white;
+  }
+  
+  .brand-link {
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+  
+  .brand-icon {
+    margin-right: 0.5rem;
+  }
+  
+  .auth-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .auth-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  
+  .auth-link:hover {
+    color: white;
+  }
+  
+  .auth-link.active {
+    color: white;
+    font-weight: 600;
+  }
+  
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  
+  .login-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    width: 100%;
+  }
+  
+  .login-header {
+    margin-bottom: 2rem;
+  }
+  
+  .login-icon {
+    width: 70px;
+    height: 70px;
+    background: #f0f4ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: #4361ee;
+    font-size: 28px;
+  }
+  
+  .login-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+  
+  .login-header p {
+    color: #6c757d;
+    margin-bottom: 0;
+  }
+  
+  .login-form .form-control {
+    height: calc(3rem + 2px);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    font-size: 1rem;
+  }
+  
+  .login-form .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    border-color: #4361ee;
+  }
+  
+  .login-form label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+  
+  .login-form .btn-primary {
+    background: #4361ee;
+    border: none;
+    height: 3.25rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s;
+  }
+  
+  .login-form .btn-primary:hover {
+    background: #3a0ca3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(58, 12, 163, 0.3);
+  }
+  
+  .create-account-link {
+    color: #4361ee;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .create-account-link:hover {
+    text-decoration: underline;
+  }
+  
+  .copyright-text {
+    position: absolute;
+    bottom: 1.5rem;
+    width: 100%;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+  }
+  
+  @media (max-width: 576px) {
+    .brand-container {
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    
+    .login-container {
+      padding: 1rem;
+    }
+    
+    .login-card {
+      padding: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block navbar %}
+  <!-- Override navbar block to ensure it's not displayed -->
+{% endblock %} 

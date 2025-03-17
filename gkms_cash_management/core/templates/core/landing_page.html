@@ -1,0 +1,401 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  /* Hero section */
+  .hero {
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    padding: 5rem 0;
+    color: white;
+    text-align: center;
+  }
+  
+  .hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.25rem;
+    max-width: 800px;
+    margin: 0 auto 2.5rem;
+    opacity: 0.9;
+  }
+  
+  /* Action buttons */
+  .action-buttons {
+    margin-top: 2rem;
+  }
+  
+  .action-buttons .btn {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    margin: 0 0.5rem;
+    transition: all 0.3s;
+  }
+  
+  .action-buttons .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-primary {
+    background: white;
+    color: #4361ee;
+    border-color: white;
+  }
+  
+  .btn-primary:hover, .btn-primary:focus {
+    background: #f8f9fa;
+    color: #3a0ca3;
+    border-color: #f8f9fa;
+  }
+  
+  .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: white;
+    color: white;
+  }
+  
+  /* Features section */
+  .features {
+    padding: 5rem 0;
+    background-color: #f8f9fa;
+  }
+  
+  .section-title {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .section-title h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .section-title p {
+    font-size: 1.2rem;
+    color: #6c757d;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  .feature-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    height: 100%;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    border: none;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feature-icon {
+    height: 70px;
+    width: 70px;
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 1.75rem;
+  }
+  
+  .feature-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .feature-card p {
+    color: #6c757d;
+    margin-bottom: 0;
+  }
+  
+  /* How it works section */
+  .how-it-works {
+    padding: 5rem 0;
+    background-color: white;
+  }
+  
+  .step {
+    display: flex;
+    margin-bottom: 3rem;
+  }
+  
+  .step:last-child {
+    margin-bottom: 0;
+  }
+  
+  .step-number {
+    font-size: 4rem;
+    font-weight: 800;
+    color: rgba(67, 97, 238, 0.15);
+    margin-right: 2rem;
+    line-height: 1;
+  }
+  
+  .step-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .step-content p {
+    color: #6c757d;
+  }
+  
+  /* Footer */
+  .footer {
+    background: #212529;
+    color: #f8f9fa;
+    padding: 4rem 0 2rem;
+  }
+  
+  .footer-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+  
+  .footer-links h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+  
+  .footer-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .footer-links li {
+    margin-bottom: 0.75rem;
+  }
+  
+  .footer-links a {
+    color: rgba(248, 249, 250, 0.7);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  
+  .footer-links a:hover {
+    color: white;
+  }
+  
+  .footer-bottom {
+    border-top: 1px solid rgba(248, 249, 250, 0.1);
+    padding-top: 2rem;
+    margin-top: 3rem;
+    text-align: center;
+    color: rgba(248, 249, 250, 0.7);
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive */
+  @media (max-width: 767.98px) {
+    .hero h1 {
+      font-size: 2.5rem;
+    }
+    
+    .hero p {
+      font-size: 1.1rem;
+    }
+    
+    .action-buttons .btn {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+    }
+    
+    .section-title h2 {
+      font-size: 2rem;
+    }
+    
+    .section-title p {
+      font-size: 1.1rem;
+    }
+    
+    .step {
+      flex-direction: column;
+    }
+    
+    .step-number {
+      margin-right: 0;
+      margin-bottom: 1rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Set hide_navbar for the landing page -->
+{% with hide_navbar=True %}
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <h1>GKMS Cash Management System</h1>
+    <p>Streamline your cash operations with our centralized platform for Western Union agents in Jamaica and the Eastern Caribbean.</p>
+    
+    <div class="action-buttons">
+      <a href="{% url 'login' %}" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt me-2"></i>Log In
+      </a>
+      <a href="{% url 'signup' %}" class="btn btn-outline-light">
+        <i class="fas fa-user-plus me-2"></i>Sign Up
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+  <div class="container">
+    <div class="section-title">
+      <h2>Powerful Cash Management Tools</h2>
+      <p>Everything you need to efficiently manage your cash operations</p>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-hand-holding-usd"></i>
+          </div>
+          <h3>Cash Requests</h3>
+          <p>Submit cash requests with denomination breakdowns directly through the system, and receive automatic notifications.</p>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3>Real-time Dashboard</h3>
+          <p>Monitor your cash position in real-time with intelligent analytics and forecasting.</p>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-file-invoice-dollar"></i>
+          </div>
+          <h3>End-of-Day Reporting</h3>
+          <p>Simplify your EOD process with digital reports that automatically calculate variances and balances.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works">
+  <div class="container">
+    <div class="section-title">
+      <h2>How It Works</h2>
+      <p>Our simple, streamlined process</p>
+    </div>
+    
+    <div class="row mt-5">
+      <div class="col-lg-6 offset-lg-3">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Request Cash</h3>
+            <p>Submit your cash request with detailed denomination breakdowns and preferred delivery date.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Receive Approval</h3>
+            <p>Get notified when your request is approved and scheduled for delivery.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Verify Delivery</h3>
+            <p>Confirm receipt of the cash delivery and reconcile the amounts.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3>Submit EOD Report</h3>
+            <p>Complete your end-of-day reports with automated calculation and variance tracking.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-4 mb-4 mb-lg-0">
+        <div class="footer-logo">
+          <i class="fas fa-coins me-2"></i>GKMS Cash Management
+        </div>
+        <p>Streamlining cash operations for Western Union agents across Jamaica and the Eastern Caribbean.</p>
+      </div>
+      
+      <div class="col-sm-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'signup' %}">Sign Up</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Contact Support</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="col-sm-6 col-lg-4">
+        <div class="footer-links">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#">User Guide</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; {% now "Y" %} GKMS Cash Management. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+{% endwith %}
+{% endblock %}
