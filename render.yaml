@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: gkms-cash-management
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn gkms_cash_management.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gkms-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DJANGO_SETTINGS_MODULE
+        value: gkms_cash_management.settings.production
+      - key: WEB_CONCURRENCY
+        value: 4
+
+databases:
+  - name: gkms-db
+    databaseName: gkms
+    user: gkms_user
+    plan: free
