@@ -3,7 +3,7 @@ services:
     name: gkms-cash-management
     env: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn gkms_cash_management.wsgi:application"
+    startCommand: "cd gkms_cash_management && gunicorn gkms_cash_management.wsgi:application"
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -15,6 +15,8 @@ services:
         value: gkms_cash_management.settings.production
       - key: WEB_CONCURRENCY
         value: 4
+      - key: PYTHON_VERSION
+        value: 3.12.1
 
 databases:
   - name: gkms-db
