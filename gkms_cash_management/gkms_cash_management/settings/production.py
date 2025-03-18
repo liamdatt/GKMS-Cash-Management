@@ -9,9 +9,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['gkms-cash-management.onrender.com', '.onrender.com']
+
+# CSRF Trusted Origins - Add your Render domain here
+CSRF_TRUSTED_ORIGINS = ['https://gkms-cash-management.onrender.com', 'https://*.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
