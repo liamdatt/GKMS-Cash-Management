@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from decimal import Decimal
+from django.utils import timezone
 
 def yesterday():
     return datetime.now().date() - timedelta(days=1)
@@ -275,6 +276,34 @@ class DenominationBreakdown(models.Model):
                 self.small_bills_coins_amount
             )
         return 0
+
+class EmergencyAccessRequest(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('denied', 'Denied'),
+        ('expired', 'Expired'),
+    )
+    
+    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='emergency_access_requests')
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    requested_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_access_requests')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    access_granted_until = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"Emergency Access Request by {self.agent.username} ({self.get_status_display()})"
+    
+    def is_active(self):
+        if self.status == 'approved' and self.access_granted_until:
+            return timezone.now() <= self.access_granted_until
+        return False
+    
+    class Meta:
+        ordering = ['-requested_at']
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver

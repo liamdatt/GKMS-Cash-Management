@@ -89,6 +89,88 @@
   backdrop-filter: blur(5px);
 }
 
+/* Time countdown styles */
+.countdown-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.2);
+  padding: 0.4rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  backdrop-filter: blur(5px);
+  margin-left: 10px;
+}
+
+.countdown-time {
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+/* Emergency access countdown */
+.emergency-access-badge {
+  background: #28a745;
+  color: white;
+  padding: 0.4rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+/* Access restricted overlay */
+.access-restricted-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.access-restricted-card {
+  max-width: 500px;
+  width: 90%;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.access-restricted-header {
+  background: var(--gradient-horizontal);
+  color: white;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.access-restricted-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.access-restricted-body {
+  padding: 2rem;
+  text-align: center;
+}
+
+.access-restricted-body p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.access-time {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gkms-red);
+  margin: 1rem 0;
+}
+
 /* Metrics cards */
 .metrics-grid {
   grid-column: span 12;
@@ -504,348 +586,337 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-  <div class="container-fluid">
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      {% endfor %}
-    {% endif %}
+<div class="container-fluid dashboard-container">
     
-    <div class="dashboard-grid">
-      <!-- Welcome Banner -->
-      <div class="welcome-banner animate-fade-in">
-        <div>
-          <h1>Welcome, {{ user.get_full_name|default:user.username }}</h1>
-          <div class="location">{{ agent.location.name }}</div>
-        </div>
-        <div class="welcome-date">{{ today|date:"F j, Y" }}</div>
-      </div>
-      
-      <!-- Key Metrics -->
-      <div class="metrics-grid">
-        <div class="metric-card animate-fade-in" style="animation-delay: 0.1s">
-          <div class="metric-icon">
-            <i class="fas fa-wallet"></i>
-          </div>
-          <div class="metric-data">
-            <p class="metric-value">${{ daily_data.previous_day_balance|floatformat:2 }}</p>
-            <p class="metric-label">Opening Balance</p>
-          </div>
-        </div>
-        
-        <div class="metric-card animate-fade-in" style="animation-delay: 0.2s">
-          <div class="metric-icon">
-            <i class="fas fa-truck"></i>
-          </div>
-          <div class="metric-data">
-            <p class="metric-value">${{ daily_data.cash_delivered_today|floatformat:2 }}</p>
-            <p class="metric-label">Delivered Today</p>
-          </div>
-        </div>
-        
-        <div class="metric-card animate-fade-in" style="animation-delay: 0.3s">
-          <div class="metric-icon">
-            <i class="fas fa-hand-holding-usd"></i>
-          </div>
-          <div class="metric-data">
-            <p class="metric-value">${{ daily_data.payout_at_3pm|floatformat:2 }}</p>
-            <p class="metric-label">Payouts (3PM)</p>
-          </div>
-        </div>
-        
-        <div class="metric-card animate-fade-in" style="animation-delay: 0.4s">
-          <div class="metric-icon">
-            <i class="fas fa-money-bill-wave"></i>
-          </div>
-          <div class="metric-data">
-            <p class="metric-value">${{ daily_data.cash_position_at_3pm|floatformat:2 }}</p>
-            <p class="metric-label">Current Position</p>
-          </div>
-        </div>
-        
-        <div class="metric-card animate-fade-in" style="animation-delay: 0.5s">
-          <div class="metric-icon">
-            <i class="fas fa-chart-line"></i>
-          </div>
-          <div class="metric-data">
-            <p class="metric-value">${{ daily_data.projected_ending_position|floatformat:2 }}</p>
-            <p class="metric-label">Projected EOD</p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Quick Actions -->
-      <div class="card-quick-actions">
-        <div class="main-card animate-fade-in" style="animation-delay: 0.2s">
-          <div class="main-card-header">
-            <div>
-              <i class="fas fa-bolt header-icon"></i>
-              Quick Actions
+    {% if not is_business_hours and not has_emergency_access %}
+    <!-- Access Restricted Overlay -->
+    <div class="access-restricted-overlay">
+        <div class="access-restricted-card">
+            <div class="access-restricted-header">
+                <h2><i class="fas fa-clock"></i> Access Restricted</h2>
             </div>
-          </div>
-          <div class="main-card-body">
-            <div class="quick-actions">
-              <a href="{% url 'submit_eod_report' %}" class="quick-action-btn">
-                <div class="quick-action-icon">
-                  <i class="fas fa-file-alt"></i>
+            <div class="access-restricted-body">
+                <p>It is now after 3:00 PM. Cash management system access is restricted until tomorrow.</p>
+                <div class="access-time">
+                    Access resumes at 8:00 AM tomorrow
                 </div>
-                <div class="quick-action-text">
-                  <p class="quick-action-title">EOD Report</p>
-                  <p class="quick-action-subtitle">Submit your daily report</p>
-                </div>
-              </a>
-              
-              <a href="#" class="quick-action-btn">
-                <div class="quick-action-icon">
-                  <i class="fas fa-truck"></i>
-                </div>
-                <div class="quick-action-text">
-                  <p class="quick-action-title">Cash Delivery</p>
-                  <p class="quick-action-subtitle">Record cash receipts</p>
-                </div>
-              </a>
-              
-              <a href="#" class="quick-action-btn">
-                <div class="quick-action-icon">
-                  <i class="fas fa-hand-holding-usd"></i>
-                </div>
-                <div class="quick-action-text">
-                  <p class="quick-action-title">Record Payout</p>
-                  <p class="quick-action-subtitle">Process customer payout</p>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Cash Summary -->
-      <div class="card-cash-summary">
-        <div class="main-card animate-fade-in" style="animation-delay: 0.3s">
-          <div class="main-card-header">
-            <div>
-              <i class="fas fa-history header-icon"></i>
-              Recent EOD Reports
-            </div>
-            <button class="btn btn-sm btn-light btn-sm" id="viewAllReportsBtn">
-              View All
-            </button>
-          </div>
-          <div class="main-card-body">
-            <div class="table-responsive">
-              <table class="compact-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Closing Balance</th>
-                    <th>Variance</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for report in recent_reports %}
-                  <tr>
-                    <td>{{ report.processing_date|date:"M d, Y" }}</td>
-                    <td><b>${{ report.closing_balance|floatformat:2 }}</b></td>
-                    <td class="{% if report.variance > 0 %}text-warning{% elif report.variance < 0 %}text-danger{% else %}text-success{% endif %}">
-                      ${{ report.variance|floatformat:2 }}
-                    </td>
-                    <td>
-                      {% if report.status == 'pending' %}
-                        <span class="status-pill status-pending">Pending</span>
-                      {% elif report.status == 'approved' %}
-                        <span class="status-pill status-approved">Approved</span>
-                      {% elif report.status == 'rejected' %}
-                        <span class="status-pill status-rejected">Rejected</span>
-                      {% endif %}
-                    </td>
-                  </tr>
-                  {% empty %}
-                  <tr>
-                    <td colspan="4" class="text-center py-3 text-muted">
-                      <i class="fas fa-file-alt fa-2x mb-2"></i>
-                      <p class="mb-0">No recent reports found</p>
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- EOD Report Status -->
-      <div class="card-eod-status">
-        <div class="main-card animate-fade-in" style="animation-delay: 0.4s">
-          <div class="main-card-header">
-            <div>
-              <i class="fas fa-file-invoice header-icon"></i>
-              EOD Report Status
-            </div>
-          </div>
-          <div class="main-card-body d-flex align-items-center justify-content-center">
-            <div class="eod-status">
-              {% if has_eod_report %}
-                <div class="eod-badge badge-success">
-                  Report Submitted
-                </div>
-                <p class="mb-3 small">Report submitted successfully for today.</p>
                 
-                <div class="d-grid gap-2">
-                  <a href="{% url 'submit_eod_report' %}" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-edit me-1"></i>Update Report
-                  </a>
+                {% if pending_emergency_request %}
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-hourglass-half"></i> You have a pending emergency access request. An administrator will review it shortly.
                 </div>
-              {% else %}
-                <div class="eod-badge badge-danger">
-                  Report Needed
-                </div>
-                <p class="mb-3 small">End of day report required.</p>
+                {% else %}
+                <hr class="my-4">
+                <h5>Need emergency access?</h5>
+                <p>If you require urgent access to the system, you can request emergency access below:</p>
                 
-                <div class="d-grid">
-                  <a href="{% url 'submit_eod_report' %}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-file-alt me-1"></i>Submit EOD Report
-                  </a>
-                </div>
-              {% endif %}
+                <form method="post" action="{% url 'request_emergency_access' %}">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        {{ emergency_access_form.reason }}
+                    </div>
+                    <button type="submit" name="request_emergency_access" class="btn btn-danger">
+                        <i class="fas fa-unlock-alt"></i> Request Emergency Access
+                    </button>
+                </form>
+                {% endif %}
             </div>
-          </div>
         </div>
-      </div>
-      
-      <!-- Notifications Horizontal Scroll -->
-      {% if notifications %}
-      <div class="notifications-list">
-        {% for notification in notifications %}
-        <div class="notification-card animate-fade-in" style="animation-delay: {{ forloop.counter|add:5|divisibleby:10 }}s">
-          <div class="notification-icon">
-            <i class="fas fa-bell"></i>
-          </div>
-          <div class="notification-content">
-            <div class="notification-title">{{ notification.title }}</div>
-            <div class="notification-text">{{ notification.message }}</div>
-            <div class="notification-time">{{ notification.created_at|date:"M d, g:i A" }}</div>
-          </div>
-          {% if notification.is_read %}
-          <span class="badge bg-secondary rounded-pill notification-badge">Read</span>
-          {% else %}
-          <span class="badge bg-danger rounded-pill notification-badge">New</span>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
     </div>
-  </div>
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <div class="dashboard-grid">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <div>
+                        <h1>Welcome, {{ agent.user.first_name|default:agent.user.username }}</h1>
+                        <p class="location">{{ agent.location.name }}</p>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="welcome-date">
+                            <i class="fas fa-calendar-alt"></i> {{ today|date:"l, F j, Y" }}
+                        </div>
+                        
+                        {% if is_business_hours and not has_emergency_access %}
+                        <div class="countdown-container">
+                            <span>Time to cutoff:</span>
+                            <span class="countdown-time">{{ hours_to_cutoff }}h {{ minutes_to_cutoff }}m</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if has_emergency_access %}
+                        <div class="emergency-access-badge">
+                            <i class="fas fa-unlock-alt"></i> Emergency access: {{ emergency_minutes_remaining }} minutes remaining
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Key Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card animate-fade-in" style="animation-delay: 0.1s">
+                        <div class="metric-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="metric-data">
+                            <p class="metric-value">${{ daily_data.previous_day_balance|floatformat:2 }}</p>
+                            <p class="metric-label">Opening Balance</p>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card animate-fade-in" style="animation-delay: 0.2s">
+                        <div class="metric-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="metric-data">
+                            <p class="metric-value">${{ daily_data.cash_delivered_today|floatformat:2 }}</p>
+                            <p class="metric-label">Delivered Today</p>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card animate-fade-in" style="animation-delay: 0.3s">
+                        <div class="metric-icon">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div class="metric-data">
+                            <p class="metric-value">${{ daily_data.payout_at_3pm|floatformat:2 }}</p>
+                            <p class="metric-label">Payouts (3PM)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card animate-fade-in" style="animation-delay: 0.4s">
+                        <div class="metric-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="metric-data">
+                            <p class="metric-value">${{ daily_data.cash_position_at_3pm|floatformat:2 }}</p>
+                            <p class="metric-label">Current Position</p>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card animate-fade-in" style="animation-delay: 0.5s">
+                        <div class="metric-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-data">
+                            <p class="metric-value">${{ daily_data.projected_ending_position|floatformat:2 }}</p>
+                            <p class="metric-label">Projected EOD</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="card-quick-actions">
+                    <div class="main-card animate-fade-in" style="animation-delay: 0.2s">
+                        <div class="main-card-header">
+                            <div>
+                                <i class="fas fa-bolt header-icon"></i>
+                                Quick Actions
+                            </div>
+                        </div>
+                        <div class="main-card-body">
+                            <div class="quick-actions">
+                                <a href="{% url 'submit_eod_report' %}" class="quick-action-btn">
+                                    <div class="quick-action-icon">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="quick-action-text">
+                                        <p class="quick-action-title">EOD Report</p>
+                                        <p class="quick-action-subtitle">Submit your daily report</p>
+                                    </div>
+                                </a>
+                                
+                                <a href="#" class="quick-action-btn">
+                                    <div class="quick-action-icon">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <div class="quick-action-text">
+                                        <p class="quick-action-title">Cash Delivery</p>
+                                        <p class="quick-action-subtitle">Record cash receipts</p>
+                                    </div>
+                                </a>
+                                
+                                <a href="#" class="quick-action-btn">
+                                    <div class="quick-action-icon">
+                                        <i class="fas fa-hand-holding-usd"></i>
+                                    </div>
+                                    <div class="quick-action-text">
+                                        <p class="quick-action-title">Record Payout</p>
+                                        <p class="quick-action-subtitle">Process customer payout</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cash Summary -->
+                <div class="card-cash-summary">
+                    <div class="main-card animate-fade-in" style="animation-delay: 0.3s">
+                        <div class="main-card-header">
+                            <div>
+                                <i class="fas fa-history header-icon"></i>
+                                Recent EOD Reports
+                            </div>
+                            <button class="btn btn-sm btn-light btn-sm" id="viewAllReportsBtn">
+                                View All
+                            </button>
+                        </div>
+                        <div class="main-card-body">
+                            <div class="table-responsive">
+                                <table class="compact-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Closing Balance</th>
+                                            <th>Variance</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for report in recent_reports %}
+                                        <tr>
+                                            <td>{{ report.processing_date|date:"M d, Y" }}</td>
+                                            <td><b>${{ report.closing_balance|floatformat:2 }}</b></td>
+                                            <td class="{% if report.variance > 0 %}text-warning{% elif report.variance < 0 %}text-danger{% else %}text-success{% endif %}">
+                                                ${{ report.variance|floatformat:2 }}
+                                            </td>
+                                            <td>
+                                                {% if report.status == 'pending' %}
+                                                    <span class="status-pill status-pending">Pending</span>
+                                                {% elif report.status == 'approved' %}
+                                                    <span class="status-pill status-approved">Approved</span>
+                                                {% elif report.status == 'rejected' %}
+                                                    <span class="status-pill status-rejected">Rejected</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center py-3 text-muted">
+                                                <i class="fas fa-file-alt fa-2x mb-2"></i>
+                                                <p class="mb-0">No recent reports found</p>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- EOD Report Status -->
+                <div class="card-eod-status">
+                    <div class="main-card animate-fade-in" style="animation-delay: 0.4s">
+                        <div class="main-card-header">
+                            <div>
+                                <i class="fas fa-file-invoice header-icon"></i>
+                                EOD Report Status
+                            </div>
+                        </div>
+                        <div class="main-card-body d-flex align-items-center justify-content-center">
+                            <div class="eod-status">
+                                {% if has_eod_report %}
+                                    <div class="eod-badge badge-success">
+                                        Report Submitted
+                                    </div>
+                                    <p class="mb-3 small">Report submitted successfully for today.</p>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'submit_eod_report' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit me-1"></i>Update Report
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <div class="eod-badge badge-danger">
+                                        Report Needed
+                                    </div>
+                                    <p class="mb-3 small">End of day report required.</p>
+                                    
+                                    <div class="d-grid">
+                                        <a href="{% url 'submit_eod_report' %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-file-alt me-1"></i>Submit EOD Report
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notifications Horizontal Scroll -->
+                {% if notifications %}
+                <div class="notifications-list">
+                    {% for notification in notifications %}
+                    <div class="notification-card animate-fade-in" style="animation-delay: {{ forloop.counter|add:5|divisibleby:10 }}s">
+                        <div class="notification-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">{{ notification.title }}</div>
+                            <div class="notification-text">{{ notification.message }}</div>
+                            <div class="notification-time">{{ notification.created_at|date:"M d, g:i A" }}</div>
+                        </div>
+                        {% if notification.is_read %}
+                        <span class="badge bg-secondary rounded-pill notification-badge">Read</span>
+                        {% else %}
+                        <span class="badge bg-danger rounded-pill notification-badge">New</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Animate counters with modern number formatting
-  const animateCounter = (el) => {
-    const target = parseFloat(el.textContent.replace(/[^0-9.-]+/g, ''));
-    const duration = 1000;
-    const start = 0;
-    let startTime = null;
-    
-    function animate(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      const value = start + (target - start) * easeOutQuart;
-      
-      // Format with commas for thousands
-      const formattedValue = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2
-      }).format(value);
-      
-      el.textContent = formattedValue;
-      
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
+    // Update the countdown timer every minute
+    function updateCountdown() {
+        var hoursEl = document.querySelector('.countdown-time');
+        if (hoursEl) {
+            var parts = hoursEl.textContent.trim().split('h ');
+            var hours = parseInt(parts[0]);
+            var minutes = parseInt(parts[1].replace('m', ''));
+            
+            if (minutes > 0) {
+                minutes--;
+            } else if (hours > 0) {
+                hours--;
+                minutes = 59;
+            }
+            
+            if (hours === 0 && minutes === 0) {
+                // Time's up, reload the page to show restricted access
+                location.reload();
+            }
+            
+            hoursEl.textContent = hours + 'h ' + minutes + 'm';
+        }
+        
+        // Update emergency access timer if present
+        var emergencyEl = document.querySelector('.emergency-access-badge');
+        if (emergencyEl) {
+            var text = emergencyEl.textContent;
+            var minutes = parseInt(text.match(/(\d+)/)[0]);
+            
+            if (minutes > 0) {
+                minutes--;
+                emergencyEl.textContent = emergencyEl.textContent.replace(/\d+/, minutes);
+            } else {
+                // Emergency access expired, reload
+                location.reload();
+            }
+        }
     }
     
-    requestAnimationFrame(animate);
-  };
-  
-  // Apply counter animation with staggered delay
-  document.querySelectorAll('.metric-value').forEach((counter, index) => {
-    setTimeout(() => {
-      animateCounter(counter);
-    }, index * 100);
-  });
-  
-  // Create custom toast notifications
-  const createToast = (message, type = 'info') => {
-    const toast = document.createElement('div');
-    toast.style.position = 'fixed';
-    toast.style.bottom = '20px';
-    toast.style.right = '20px';
-    toast.style.backgroundColor = 'white';
-    toast.style.borderRadius = '8px';
-    toast.style.padding = '12px 16px';
-    toast.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
-    toast.style.display = 'flex';
-    toast.style.alignItems = 'center';
-    toast.style.maxWidth = '300px';
-    toast.style.zIndex = '9999';
-    toast.style.transform = 'translateY(100%)';
-    toast.style.opacity = '0';
-    toast.style.transition = 'all 0.3s ease';
-    
-    // Icon based on type
-    const iconColor = type === 'success' ? '#28a745' : 
-                     type === 'error' ? '#dc3545' : 
-                     type === 'warning' ? '#ffc107' : '#0d6efd';
-    
-    const iconBg = `rgba(${type === 'success' ? '40,167,69,0.1' : 
-                         type === 'error' ? '220,53,69,0.1' : 
-                         type === 'warning' ? '255,193,7,0.1' : '13,110,253,0.1'})`;
-    
-    toast.innerHTML = `
-      <div style="width: 32px; height: 32px; border-radius: 50%; background: ${iconBg}; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}" style="color: ${iconColor};"></i>
-      </div>
-      <div style="flex: 1;">${message}</div>
-      <button style="background: transparent; border: none; cursor: pointer; font-size: 16px; margin-left: 8px; opacity: 0.6; color: #6c757d;">×</button>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.transform = 'translateY(0)';
-      toast.style.opacity = '1';
-    }, 100);
-    
-    const closeBtn = toast.querySelector('button');
-    closeBtn.addEventListener('click', () => {
-      toast.style.transform = 'translateY(100%)';
-      toast.style.opacity = '0';
-      setTimeout(() => toast.remove(), 300);
-    });
-    
-    setTimeout(() => {
-      toast.style.transform = 'translateY(100%)';
-      toast.style.opacity = '0';
-      setTimeout(() => toast.remove(), 300);
-    }, 5000);
-  };
-  
-  // Handle view all reports button
-  document.getElementById('viewAllReportsBtn').addEventListener('click', function() {
-    createToast('Navigating to all reports would go to the reports page', 'info');
-  });
-});
+    // Update every minute
+    setInterval(updateCountdown, 60000);
 </script>
 {% endblock %}

@@ -1,0 +1,238 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Review Emergency Access Requests{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        background: linear-gradient(90deg, #E50914, #B71C1C);
+        color: white;
+        font-weight: 600;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .card-header-icon {
+        margin-right: 0.5rem;
+    }
+    
+    .request-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+    
+    .request-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    .request-header {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .request-agent {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .request-time {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    .request-body {
+        padding: 1rem;
+    }
+    
+    .request-reason {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #E50914;
+    }
+    
+    .request-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+    
+    .status-pill {
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-pending {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .status-approved {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .status-denied {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .status-expired {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Emergency Access Requests</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Emergency Access Requests</h1>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Pending Requests -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="fas fa-hourglass-half card-header-icon"></i> Pending Requests</span>
+                    {% if pending_requests %}
+                    <span class="badge bg-danger rounded-pill">{{ pending_requests|length }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if pending_requests %}
+                        {% for request in pending_requests %}
+                        <div class="request-card">
+                            <div class="request-header">
+                                <div>
+                                    <div class="request-agent">{{ request.agent.get_full_name|default:request.agent.username }}</div>
+                                    <div class="request-time">
+                                        <i class="fas fa-clock"></i> {{ request.requested_at|timesince }} ago
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="status-pill status-pending">Pending</span>
+                                </div>
+                            </div>
+                            <div class="request-body">
+                                <h6>Location: {{ request.location.name }}</h6>
+                                <div class="request-reason">
+                                    <strong>Reason:</strong><br>
+                                    {{ request.reason }}
+                                </div>
+                                <div class="request-actions">
+                                    <form method="post" action="{% url 'handle_emergency_request' request.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" name="action" value="deny" class="btn btn-outline-danger">
+                                            <i class="fas fa-times"></i> Deny
+                                        </button>
+                                        <button type="submit" name="action" value="approve" class="btn btn-success">
+                                            <i class="fas fa-check"></i> Approve (30 min)
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h4>No Pending Requests</h4>
+                            <p>There are no emergency access requests waiting for your approval.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="fas fa-history card-header-icon"></i> Recent Activity</span>
+                </div>
+                <div class="card-body">
+                    {% if recent_requests %}
+                        <div class="list-group">
+                            {% for request in recent_requests %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ request.agent.get_full_name|default:request.agent.username }}</h6>
+                                    <small>{{ request.reviewed_at|date:"M d, H:i" }}</small>
+                                </div>
+                                <p class="mb-1">{{ request.location.name }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    {% if request.status == 'approved' %}
+                                    <span class="status-pill status-approved">Approved</span>
+                                    {% elif request.status == 'denied' %}
+                                    <span class="status-pill status-denied">Denied</span>
+                                    {% elif request.status == 'expired' %}
+                                    <span class="status-pill status-expired">Expired</span>
+                                    {% endif %}
+                                    <small>by {{ request.reviewed_by.get_full_name|default:request.reviewed_by.username }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <h5>No Recent Activity</h5>
+                            <p>There is no recent emergency access activity to display.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

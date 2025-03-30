@@ -6,9 +6,9 @@ from django.db.models import Q, Sum, Avg
 from django.http import HttpResponse, JsonResponse
 from .models import (
     AgentProfile, Location, LocationLimit, CashDelivery, 
-    CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance
+    CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance, EmergencyAccessRequest
 )
-from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm
+from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm, EmergencyAccessRequestForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 import logging
@@ -20,6 +20,7 @@ from django.contrib.auth.views import LoginView
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from decimal import Decimal
+import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -139,8 +140,61 @@ def agent_dashboard(request):
         # Get the agent profile
         agent = AgentProfile.objects.get(user=request.user)
         
-        # Get today's date
+        # Get today's date and current time in EST (Eastern Standard Time)
         today = timezone.now().date()
+        
+        # Define cutoff times (8 AM to 3 PM EST)
+        current_time = timezone.now()
+        # Adjust for EST if needed - for demo we'll use server time
+        # current_time = timezone.now().astimezone(pytz.timezone('US/Eastern'))
+        
+        # Define business hours
+        opening_time = current_time.replace(hour=8, minute=0, second=0, microsecond=0)
+        cutoff_time = current_time.replace(hour=15, minute=0, second=0, microsecond=0)
+        
+        # Check if current time is within business hours
+        is_business_hours = opening_time <= current_time <= cutoff_time
+        
+        # Calculate time until cutoff
+        if current_time < cutoff_time:
+            time_to_cutoff = cutoff_time - current_time
+            hours_to_cutoff = time_to_cutoff.seconds // 3600
+            minutes_to_cutoff = (time_to_cutoff.seconds % 3600) // 60
+        else:
+            hours_to_cutoff = 0
+            minutes_to_cutoff = 0
+        
+        # Check for active emergency access
+        has_emergency_access = False
+        active_emergency_request = EmergencyAccessRequest.objects.filter(
+            agent=request.user,
+            status='approved',
+            access_granted_until__gt=current_time
+        ).first()
+        
+        if active_emergency_request:
+            has_emergency_access = True
+            emergency_access_remaining = active_emergency_request.access_granted_until - current_time
+            emergency_minutes_remaining = emergency_access_remaining.seconds // 60
+        else:
+            emergency_minutes_remaining = 0
+        
+        # Handle emergency access request
+        if request.method == 'POST' and 'request_emergency_access' in request.POST:
+            form = EmergencyAccessRequestForm(request.POST)
+            if form.is_valid():
+                emergency_request = form.save(commit=False)
+                emergency_request.agent = request.user
+                emergency_request.location = agent.location
+                emergency_request.save()
+                messages.success(request, "Emergency access request submitted. An administrator will review your request shortly.")
+                return redirect('agent_dashboard')
+        else:
+            form = EmergencyAccessRequestForm()
+        
+        # Override time restriction if user has emergency access
+        if has_emergency_access:
+            is_business_hours = True
         
         # Get or create daily data
         daily_data, created = DailyAgentData.objects.get_or_create(
@@ -176,15 +230,31 @@ def agent_dashboard(request):
         
         # Get notifications (placeholder - to be implemented)
         notifications = []
+
+        # Get pending emergency requests
+        pending_emergency_request = EmergencyAccessRequest.objects.filter(
+            agent=request.user,
+            status='pending'
+        ).exists()
         
         context = {
             'agent': agent,
             'today': today,
+            'current_time': current_time,
+            'is_business_hours': is_business_hours,
+            'opening_time': opening_time,
+            'cutoff_time': cutoff_time,
+            'hours_to_cutoff': hours_to_cutoff,
+            'minutes_to_cutoff': minutes_to_cutoff,
             'daily_data': daily_data,
             'has_eod_report': has_eod_report,
             'eod_report': eod_report,
             'recent_reports': recent_reports,
             'notifications': notifications,
+            'has_emergency_access': has_emergency_access,
+            'emergency_minutes_remaining': emergency_minutes_remaining,
+            'emergency_access_form': form,
+            'pending_emergency_request': pending_emergency_request,
         }
         
         return render(request, 'core/agent_dashboard.html', context)
@@ -1316,3 +1386,51 @@ def admin_view_eod_report_detail(request, report_id):
     }
     
     return render(request, 'core/admin_view_eod_report_detail.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def review_emergency_requests(request):
+    """View for admins to review emergency access requests."""
+    # Get all pending emergency access requests
+    pending_requests = EmergencyAccessRequest.objects.filter(status='pending')
+    
+    # Get all recent requests (for history)
+    recent_requests = EmergencyAccessRequest.objects.exclude(status='pending').order_by('-requested_at')[:10]
+    
+    context = {
+        'pending_requests': pending_requests,
+        'recent_requests': recent_requests,
+    }
+    
+    return render(request, 'core/review_emergency_requests.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def handle_emergency_request(request, request_id):
+    """Handle approval or denial of emergency access requests."""
+    # Get the emergency request
+    emergency_request = get_object_or_404(EmergencyAccessRequest, id=request_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        # Update the request based on admin action
+        if action == 'approve':
+            # Grant 30 minutes of emergency access
+            emergency_request.status = 'approved'
+            emergency_request.reviewed_by = request.user
+            emergency_request.reviewed_at = timezone.now()
+            emergency_request.access_granted_until = timezone.now() + timedelta(minutes=30)
+            emergency_request.save()
+            
+            messages.success(request, f"Emergency access granted to {emergency_request.agent.username} for 30 minutes.")
+        
+        elif action == 'deny':
+            emergency_request.status = 'denied'
+            emergency_request.reviewed_by = request.user
+            emergency_request.reviewed_at = timezone.now()
+            emergency_request.save()
+            
+            messages.warning(request, f"Emergency access request from {emergency_request.agent.username} has been denied.")
+    
+    return redirect('review_emergency_requests')

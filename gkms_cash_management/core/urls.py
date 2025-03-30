@@ -48,3 +48,10 @@ urlpatterns += [
     path('system-admin/eod-reports/', views.admin_view_eod_reports, name='admin_view_eod_reports'),
     path('system-admin/eod-reports/<int:report_id>/', views.admin_view_eod_report_detail, name='admin_view_eod_report_detail'),
 ]
+
+# Emergency access routes
+urlpatterns += [
+    path('request-emergency-access/', views.agent_dashboard, name='request_emergency_access'),
+    path('system-admin/emergency-requests/', views.review_emergency_requests, name='review_emergency_requests'),
+    path('system-admin/emergency-requests/<int:request_id>/', views.handle_emergency_request, name='handle_emergency_request'),
+]

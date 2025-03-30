@@ -1,5 +1,5 @@
 from django import forms
-from .models import CashRequest, EODReport, CashDelivery, TellerBalance, Adjustment
+from .models import CashRequest, EODReport, CashDelivery, TellerBalance, Adjustment, EmergencyAccessRequest
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -280,4 +280,14 @@ class SignupForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs.update({'class': 'form-control'})
-        self.fields['password2'].widget.attrs.update({'class': 'form-control'}) 
+        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+
+class EmergencyAccessRequestForm(forms.ModelForm):
+    reason = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Please explain why you need emergency access'}),
+        required=True
+    )
+    
+    class Meta:
+        model = EmergencyAccessRequest
+        fields = ['reason'] 
