@@ -1,0 +1,142 @@
+/* Theme Overrides for GKMS Cash Management - Ensuring red, black, and white theme across all pages */
+
+/* Global Colors */
+:root {
+  --primary: #E50914 !important;
+  --primary-light: #FF3B30 !important;
+  --secondary: #B71C1C !important;
+  --success: #28a745 !important;
+  --danger: #dc3545 !important;
+  --warning: #ffc107 !important;
+  --info: #17a2b8 !important;
+  --gradient-1: linear-gradient(135deg, #E50914, #B71C1C) !important;
+  --gradient-2: linear-gradient(135deg, #FF3B30, #E50914) !important;
+  --gradient-3: linear-gradient(135deg, #dc3545, #B71C1C) !important;
+  --gradient-4: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+}
+
+/* Bootstrap Overrides */
+.bg-primary {
+  background-color: #E50914 !important;
+}
+
+.bg-secondary {
+  background-color: #B71C1C !important;
+}
+
+/* Button Styling - Ensuring Good Contrast */
+.btn-primary {
+  background-color: #E50914 !important;
+  border-color: #E50914 !important;
+  color: white !important;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #B71C1C !important;
+  border-color: #B71C1C !important;
+  color: white !important;
+}
+
+.btn-outline-primary {
+  color: #E50914 !important;
+  border-color: #E50914 !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+  background-color: #E50914 !important;
+  border-color: #E50914 !important;
+  color: #fff !important;
+}
+
+.btn-danger {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: white !important;
+}
+
+.btn-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  color: white !important;
+}
+
+.btn-light {
+  background-color: #fff !important;
+  border-color: #fff !important;
+  color: #E50914 !important;
+}
+
+.btn-outline-light {
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+}
+
+.btn-modern-primary {
+  background: var(--gradient-1) !important;
+  color: white !important;
+}
+
+.text-primary {
+  color: #E50914 !important;
+}
+
+.border-primary {
+  border-color: #E50914 !important;
+}
+
+/* Header Backgrounds */
+.dashboard-header,
+.agent-header,
+.request-header,
+.ultra-header,
+.page-header-modern,
+.card-header-gradient {
+  background: var(--gradient-1) !important;
+}
+
+/* Cards and Elements */
+.card::after, 
+.modern-card::after,
+.stat-card-modern::before,
+.ultra-card::after {
+  background: var(--gradient-1) !important;
+}
+
+/* Card Hover Effects */
+.card:hover,
+.modern-card:hover,
+.stat-card-modern:hover,
+.ultra-card:hover {
+  box-shadow: 0 15px 30px rgba(229, 9, 20, 0.1) !important;
+}
+
+/* Accent Colors and Backgrounds */
+.accent-light {
+  background: #FF3B30 !important;
+}
+
+.accent-light:nth-child(2) {
+  background: #B71C1C !important;
+}
+
+/* Timeline and Borders */
+.timeline::before,
+.request-card::before {
+  background: linear-gradient(to bottom, #E50914, #B71C1C) !important;
+}
+
+/* Animation keyframes */
+@keyframes pulse-theme {
+  0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(229, 9, 20, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); }
+}
+
+.pulse-animation {
+  animation: pulse-theme 2s infinite;
+} 

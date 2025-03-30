@@ -1,12 +1,12 @@
-/* Modern Theme for GKMS Cash Management */
+/* Modern Theme for GKMS Cash Management - Red, Black and White Theme */
 :root {
-  --primary: #4361ee;
-  --primary-light: #4895ef;
-  --secondary: #3f37c9;
-  --success: #4cc9f0;
-  --danger: #f72585;
-  --warning: #f8961e;
-  --info: #90e0ef;
+  --primary: #E50914;
+  --primary-light: #FF3B30;
+  --secondary: #B71C1C;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --info: #17a2b8;
   --light: #f8f9fa;
   --dark: #212529;
   --surface: rgba(255, 255, 255, 0.85);
@@ -16,7 +16,7 @@
   --gradient-primary: linear-gradient(45deg, var(--primary), var(--primary-light));
   --gradient-secondary: linear-gradient(45deg, var(--secondary), var(--primary));
   --gradient-success: linear-gradient(45deg, var(--success), #56cfe1);
-  --gradient-danger: linear-gradient(45deg, var(--danger), #b5179e);
+  --gradient-danger: linear-gradient(45deg, var(--danger), #B71C1C);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
@@ -138,6 +138,7 @@ body {
 .table-modern tbody tr:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow);
+  background-color: rgba(229, 9, 20, 0.03); /* Light red highlight on hover */
 }
 
 .table-modern td {
@@ -260,10 +261,9 @@ body {
   align-items: center;
   justify-content: center;
   transition: var(--transition);
-  background: white;
-  color: var(--dark);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  margin-right: 0.5rem;
+  color: white;
+  margin: 0 0.25rem;
+  font-size: 0.9rem;
 }
 
 .action-btn:hover {
@@ -272,28 +272,24 @@ body {
 }
 
 .action-btn-primary {
-  background: var(--primary);
-  color: white;
+  background: var(--gradient-primary);
 }
 
 .action-btn-success {
-  background: var(--success);
-  color: white;
+  background: var(--gradient-success);
 }
 
 .action-btn-danger {
-  background: var(--danger);
-  color: white;
+  background: var(--gradient-danger);
 }
 
 /* Page Header */
 .page-header-modern {
-  padding: 2.5rem 0;
-  background: var(--gradient-primary);
-  color: white;
-  margin-bottom: 2rem;
+  padding: 2rem 0;
   position: relative;
-  overflow: hidden;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: white;
 }
 
 .page-header-modern::before {
@@ -303,20 +299,22 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/static/img/header-pattern.svg');
-  opacity: 0.1;
+  background: var(--gradient-primary);
+  z-index: -1;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .page-header-modern h1 {
   font-weight: 700;
+  font-size: 2.5rem;
   margin-bottom: 0.5rem;
-  position: relative;
 }
 
 .page-header-modern p {
+  font-size: 1.1rem;
   opacity: 0.8;
-  margin-bottom: 0;
-  position: relative;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 /* Modern Search Box */
@@ -401,14 +399,15 @@ body {
 .modal-modern .modal-content {
   border-radius: var(--radius);
   border: none;
-  overflow: hidden;
+  box-shadow: var(--shadow-lg);
 }
 
 .modal-modern .modal-header {
   background: var(--gradient-primary);
   color: white;
   border-bottom: none;
-  padding: 1.5rem;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
 }
 
 .modal-modern .modal-body {
@@ -416,8 +415,14 @@ body {
 }
 
 .modal-modern .modal-footer {
-  border-top: none;
-  padding: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.5rem;
+}
+
+.modal-modern .btn-close {
+  color: white;
+  opacity: 0.8;
+  filter: brightness(0) invert(1);
 }
 
 /* Modern Form Controls */
@@ -425,17 +430,54 @@ body {
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
 }
 
 .form-control-modern:focus {
-  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
   border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(229, 9, 20, 0.25);
 }
 
 .form-label-modern {
   font-weight: 500;
   margin-bottom: 0.5rem;
+  color: var(--dark);
+}
+
+/* Custom form element styling */
+.form-check-input:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(229, 9, 20, 0.25);
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+/* Custom tabs */
+.nav-tabs .nav-link {
+  color: var(--dark);
+  font-weight: 500;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 1rem;
+  background: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+  background: transparent;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+  border-bottom: 2px solid rgba(229, 9, 20, 0.2);
 }
 
 /* Hover Info Card */
@@ -488,10 +530,10 @@ body {
   flex-wrap: wrap;
 }
 
-/* Animations */
+/* Animation Classes */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-fade-in {
@@ -499,19 +541,19 @@ body {
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(229, 9, 20, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); }
 }
 
 .animate-pulse {
   animation: pulse 2s infinite;
 }
 
-/* Modern Scrollbar */
+/* Scrollbar Styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -520,10 +562,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(67, 97, 238, 0.5);
+  background: var(--primary);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: var(--secondary);
 } 

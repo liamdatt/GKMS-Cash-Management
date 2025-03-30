@@ -2,9 +2,9 @@
 
 {% block extra_css %}
 <style>
-/* Enhanced dashboard header with greater visibility */
+/* Enhanced dashboard styling with red, black, and white theme */
 .dashboard-header {
-  background: linear-gradient(135deg, #3a0ca3, #4361ee); /* Deeper, more contrasting gradient */
+  background: linear-gradient(135deg, #B71C1C, #E50914); /* Red gradient */
   border-radius: 16px;
   padding: 2.5rem; /* More generous padding */
   margin-bottom: 2.5rem;
@@ -12,7 +12,7 @@
   overflow: hidden;
   color: white;
   box-shadow: 
-    0 15px 35px rgba(67, 97, 238, 0.3),
+    0 15px 35px rgba(229, 9, 20, 0.3),
     0 5px 15px rgba(0, 0, 0, 0.1); /* Enhanced shadow for more depth */
 }
 
@@ -57,7 +57,7 @@
   top: 0;
   height: 100%;
   width: 6px; 
-  background: linear-gradient(to bottom, #f72585, #4cc9f0);
+  background: linear-gradient(to bottom, #FF3B30, #B71C1C);
   border-top-left-radius: 16px;
   border-bottom-left-radius: 16px;
 }
@@ -110,7 +110,7 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: #f72585;
+  background: #FF3B30;
   filter: blur(80px);
   opacity: 0.3;
   z-index: 0;
@@ -120,13 +120,13 @@
 .dashboard-header .accent-light:nth-child(1) {
   top: -30px;
   right: 10%;
-  background: #f72585;
+  background: #FF3B30;
 }
 
 .dashboard-header .accent-light:nth-child(2) {
   bottom: -30px;
   left: 15%;
-  background: #4cc9f0;
+  background: #B71C1C;
   animation-delay: 2s;
 }
 
@@ -169,6 +169,80 @@
   opacity: 0.8;
 }
 
+/* Quick actions styling - new prominent design */
+.quick-actions-section {
+  margin-bottom: 2rem;
+}
+
+.quick-action-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+  min-height: 130px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(229, 9, 20, 0.15);
+  text-decoration: none;
+  color: #E50914;
+}
+
+.quick-action-card:hover .icon-circle {
+  background: #E50914;
+  color: white;
+}
+
+.quick-action-card:hover::after {
+  opacity: 1;
+}
+
+.quick-action-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #E50914, #FF3B30);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(229, 9, 20, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: #E50914;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.quick-action-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+/* Main dashboard cards */
 .card-animate {
   transition: all 0.5s;
   animation: fadeInUp 0.5s forwards;
@@ -206,7 +280,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary);
+  background: #E50914;
   color: white;
   border-radius: 8px;
 }
@@ -242,7 +316,7 @@
   color: white;
   font-size: 1.25rem;
   margin-right: 1rem;
-  background: var(--primary);
+  background: #E50914;
 }
 
 .request-item .amount {
@@ -277,6 +351,12 @@
   animation: pulse 2s infinite;
 }
 
+@keyframes pulse {
+  0% { transform: translateY(-50%) scale(0.8); opacity: 0.8; }
+  50% { transform: translateY(-50%) scale(1.2); opacity: 0.6; }
+  100% { transform: translateY(-50%) scale(0.8); opacity: 0.8; }
+}
+
 .warning-item {
   display: flex;
   align-items: center;
@@ -285,7 +365,7 @@
   margin-bottom: 1rem;
   transition: all 0.3s;
   background: #fff8f0;
-  border-left: 4px solid var(--warning);
+  border-left: 4px solid #ffc107;
 }
 
 .warning-item:hover {
@@ -304,7 +384,7 @@
   color: white;
   font-size: 1.25rem;
   margin-right: 1rem;
-  background: var(--warning);
+  background: #ffc107;
 }
 
 .warning-item .info {
@@ -329,42 +409,42 @@
 }
 
 .btn-action.primary {
-  background: rgba(67, 97, 238, 0.1);
-  color: var(--primary);
+  background: rgba(229, 9, 20, 0.1);
+  color: #E50914;
 }
 
 .btn-action.primary:hover {
-  background: var(--primary);
+  background: #E50914;
   color: white;
 }
 
 .btn-action.success {
-  background: rgba(76, 201, 240, 0.1);
-  color: var(--success);
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
 }
 
 .btn-action.success:hover {
-  background: var(--success);
+  background: #28a745;
   color: white;
 }
 
 .btn-action.danger {
-  background: rgba(247, 37, 133, 0.1);
-  color: var(--danger);
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
 }
 
 .btn-action.danger:hover {
-  background: var(--danger);
+  background: #dc3545;
   color: white;
 }
 
 .btn-action.warning {
-  background: rgba(252, 163, 17, 0.1);
-  color: var(--warning);
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
 }
 
 .btn-action.warning:hover {
-  background: var(--warning);
+  background: #ffc107;
   color: white;
 }
 
@@ -374,6 +454,17 @@
 .delay-3 { animation-delay: 0.3s; }
 .delay-4 { animation-delay: 0.4s; }
 .delay-5 { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>
 {% endblock %}
 
@@ -426,6 +517,45 @@
     </div>
   </div>
   
+  <!-- Quick Actions Section - Moved to top for better accessibility -->
+  <div class="quick-actions-section card-animate">
+    <h4 class="mb-3">Quick Actions</h4>
+    <div class="row">
+      <div class="col-lg-3 col-md-6 mb-4">
+        <a href="{% url 'manage_users' %}" class="quick-action-card">
+          <div class="icon-circle">
+            <i class="fas fa-users"></i>
+          </div>
+          <h5 class="quick-action-title">Manage Users</h5>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <a href="{% url 'generate_report' %}" class="quick-action-card">
+          <div class="icon-circle">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <h5 class="quick-action-title">Generate Reports</h5>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <a href="{% url 'admin_view_eod_reports' %}" class="quick-action-card">
+          <div class="icon-circle">
+            <i class="fas fa-file-invoice-dollar"></i>
+          </div>
+          <h5 class="quick-action-title">View EOD Reports</h5>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <a href="/admin/" class="quick-action-card">
+          <div class="icon-circle">
+            <i class="fas fa-cog"></i>
+          </div>
+          <h5 class="quick-action-title">Admin Panel</h5>
+        </a>
+      </div>
+    </div>
+  </div>
+  
   <!-- Main Dashboard Content -->
   <div class="row">
     <!-- Pending Requests Card -->
@@ -470,7 +600,7 @@
             {% endfor %}
           {% else %}
             <div class="text-center py-4">
-              <div class="mb-3" style="font-size: 3rem; color: var(--primary-light); opacity: 0.3;">
+              <div class="mb-3" style="font-size: 3rem; color: #E50914; opacity: 0.3;">
                 <i class="fas fa-check-circle"></i>
               </div>
               <h5 class="text-muted">No Pending Requests</h5>
@@ -520,58 +650,13 @@
             {% endfor %}
           {% else %}
             <div class="text-center py-4">
-              <div class="mb-3" style="font-size: 3rem; color: var(--success); opacity: 0.3;">
+              <div class="mb-3" style="font-size: 3rem; color: #28a745; opacity: 0.3;">
                 <i class="fas fa-shield-alt"></i>
               </div>
               <h5 class="text-muted">No Warnings</h5>
               <p class="text-muted small">All locations are within their cash limits</p>
             </div>
           {% endif %}
-        </div>
-      </div>
-      
-      <!-- Quick Links -->
-      <div class="dashboard-card card-animate delay-3">
-        <div class="dashboard-card-header">
-          <h5><i class="fas fa-link"></i>Quick Actions</h5>
-        </div>
-        <div class="dashboard-card-body">
-          <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Quick Actions</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <a href="{% url 'manage_users' %}" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-users fa-2x mb-2"></i><br>
-                                    Manage Users
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{% url 'generate_report' %}" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-chart-bar fa-2x mb-2"></i><br>
-                                    Generate Reports
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{% url 'admin_view_eod_reports' %}" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-file-invoice-dollar fa-2x mb-2"></i><br>
-                                    View EOD Reports
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="/admin/" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-cog fa-2x mb-2"></i><br>
-                                    Admin Panel
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
       </div>
     </div>

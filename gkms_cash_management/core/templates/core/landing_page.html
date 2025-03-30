@@ -5,28 +5,105 @@
 <style>
   /* Hero section */
   .hero {
-    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    background: linear-gradient(135deg, #E50914, #B71C1C);
     padding: 5rem 0;
     color: white;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Add animated elements */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJkb3RzIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuMyIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNkb3RzKSIgLz48L3N2Zz4=');
+    opacity: 0.6;
+    z-index: 0;
+  }
+  
+  .hero .accent-light {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    z-index: 0;
+    animation: glow 6s infinite;
+  }
+  
+  @keyframes glow {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.3; }
+  }
+  
+  .hero .accent-light:nth-child(1) {
+    top: -30px;
+    right: 10%;
+    background: #FF3B30;
+  }
+  
+  .hero .accent-light:nth-child(2) {
+    bottom: -30px;
+    left: 15%;
+    background: #B71C1C;
+    animation-delay: 2s;
+  }
+  
+  .hero .container {
+    position: relative;
+    z-index: 1;
   }
   
   .hero h1 {
     font-size: 3.5rem;
     font-weight: 800;
     margin-bottom: 1.5rem;
+    animation: fadeInDown 1s forwards;
   }
   
   .hero p {
     font-size: 1.25rem;
     max-width: 800px;
     margin: 0 auto 2.5rem;
-    opacity: 0.9;
+    opacity: 0;
+    animation: fadeInUp 1s 0.3s forwards;
+  }
+  
+  /* Animation keyframes */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   
   /* Action buttons */
   .action-buttons {
     margin-top: 2rem;
+    opacity: 0;
+    animation: fadeInUp 1s 0.6s forwards;
   }
   
   .action-buttons .btn {
@@ -45,13 +122,13 @@
   
   .btn-primary {
     background: white;
-    color: #4361ee;
+    color: #E50914;
     border-color: white;
   }
   
   .btn-primary:hover, .btn-primary:focus {
     background: #f8f9fa;
-    color: #3a0ca3;
+    color: #B71C1C;
     border-color: #f8f9fa;
   }
   
@@ -70,12 +147,14 @@
   .section-title {
     text-align: center;
     margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeInUp 1s forwards;
   }
   
   .section-title h2 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #333;
+    color: #212529;
     margin-bottom: 1rem;
   }
   
@@ -95,17 +174,21 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     text-align: center;
     border: none;
+    position: relative;
+    top: 50px;
+    opacity: 0;
   }
   
   .feature-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    border-top: 3px solid #E50914;
   }
   
   .feature-icon {
     height: 70px;
     width: 70px;
-    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    background: linear-gradient(135deg, #E50914, #B71C1C);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -119,12 +202,28 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    color: #333;
+    color: #212529;
   }
   
   .feature-card p {
     color: #6c757d;
     margin-bottom: 0;
+  }
+  
+  /* Animate feature cards on scroll */
+  .card-animated {
+    animation: featureCardIn 0.8s forwards;
+  }
+  
+  @keyframes featureCardIn {
+    from {
+      opacity: 0;
+      top: 50px;
+    }
+    to {
+      opacity: 1;
+      top: 0;
+    }
   }
   
   /* How it works section */
@@ -136,6 +235,14 @@
   .step {
     display: flex;
     margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.8s;
+  }
+  
+  .step.step-visible {
+    opacity: 1;
+    transform: translateX(0);
   }
   
   .step:last-child {
@@ -145,7 +252,7 @@
   .step-number {
     font-size: 4rem;
     font-weight: 800;
-    color: rgba(67, 97, 238, 0.15);
+    color: rgba(229, 9, 20, 0.15);
     margin-right: 2rem;
     line-height: 1;
   }
@@ -154,7 +261,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    color: #333;
+    color: #212529;
   }
   
   .step-content p {
@@ -179,6 +286,7 @@
     font-size: 1.1rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
+    color: #E50914;
   }
   
   .footer-links ul {
@@ -243,15 +351,62 @@
       margin-bottom: 1rem;
     }
   }
+
+  /* Custom navbar for landing page */
+  .landing-navbar {
+    background-color: #E50914;
+    padding: 1rem 0;
+  }
+
+  .landing-navbar .navbar-brand {
+    color: white;
+    font-weight: 700;
+  }
+
+  .landing-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.3s;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+  }
+
+  .landing-navbar .nav-link:hover {
+    color: white;
+  }
+
+  .landing-navbar .btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+  }
 </style>
 {% endblock %}
 
-{% block content %}
-<!-- Set hide_navbar for the landing page -->
-{% with hide_navbar=True %}
+{% block navbar %}
+<!-- Custom navbar for landing page -->
+<nav class="landing-navbar">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-coins me-2"></i>GKMS Cash Management
+      </a>
+      <div>
+        <a href="{% url 'login' %}" class="btn btn-light me-2">
+          <i class="fas fa-sign-in-alt me-1"></i> Login
+        </a>
+        <a href="{% url 'signup' %}" class="btn btn-outline-light">
+          <i class="fas fa-user-plus me-1"></i> Sign Up
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock %}
 
+{% block content %}
 <!-- Hero Section -->
 <section class="hero">
+  <div class="accent-light"></div>
+  <div class="accent-light"></div>
   <div class="container">
     <h1>GKMS Cash Management System</h1>
     <p>Streamline your cash operations with our centralized platform for Western Union agents in Jamaica and the Eastern Caribbean.</p>
@@ -355,6 +510,19 @@
   </div>
 </section>
 
+<!-- CTA Section -->
+<section class="cta-section" style="background-color: #f8f9fa; padding: 4rem 0;">
+  <div class="container text-center">
+    <h2 style="font-weight: 700; margin-bottom: 1.5rem; color: #212529;">Ready to streamline your cash operations?</h2>
+    <p style="font-size: 1.1rem; color: #6c757d; max-width: 700px; margin: 0 auto 2rem;">
+      Join GKMS Cash Management today and experience a more efficient way to manage your cash operations.
+    </p>
+    <a href="{% url 'signup' %}" class="btn btn-lg" style="background: linear-gradient(135deg, #E50914, #B71C1C); color: white; padding: 0.75rem 2.5rem; border-radius: 50px; font-weight: 600; transition: all 0.3s; border: none;">
+      <i class="fas fa-user-plus me-2"></i>Get Started Now
+    </a>
+  </div>
+</section>
+
 <!-- Footer -->
 <footer class="footer">
   <div class="container">
@@ -364,6 +532,12 @@
           <i class="fas fa-coins me-2"></i>GKMS Cash Management
         </div>
         <p>Streamlining cash operations for Western Union agents across Jamaica and the Eastern Caribbean.</p>
+        <div class="social-icons mt-3">
+          <a href="#" class="me-2" style="color: #E50914; font-size: 1.25rem;"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="me-2" style="color: #E50914; font-size: 1.25rem;"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="me-2" style="color: #E50914; font-size: 1.25rem;"><i class="fab fa-linkedin"></i></a>
+          <a href="#" style="color: #E50914; font-size: 1.25rem;"><i class="fab fa-instagram"></i></a>
+        </div>
       </div>
       
       <div class="col-sm-6 col-lg-4 mb-4 mb-lg-0">
@@ -396,6 +570,47 @@
     </div>
   </div>
 </footer>
+{% endblock %}
 
-{% endwith %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Animate feature cards on scroll
+  const featureCards = document.querySelectorAll('.feature-card');
+  const steps = document.querySelectorAll('.step');
+  
+  // Animate sections on scroll
+  function checkVisibility() {
+    // Animate feature cards
+    featureCards.forEach((card, index) => {
+      const cardTop = card.getBoundingClientRect().top;
+      const windowHeight = window.innerHeight;
+      
+      if (cardTop < windowHeight * 0.9) {
+        setTimeout(() => {
+          card.classList.add('card-animated');
+        }, index * 150); // Stagger animation
+      }
+    });
+    
+    // Animate steps
+    steps.forEach((step, index) => {
+      const stepTop = step.getBoundingClientRect().top;
+      const windowHeight = window.innerHeight;
+      
+      if (stepTop < windowHeight * 0.9) {
+        setTimeout(() => {
+          step.classList.add('step-visible');
+        }, index * 200); // Stagger animation
+      }
+    });
+  }
+  
+  // Initial check on page load
+  checkVisibility();
+  
+  // Check on scroll
+  window.addEventListener('scroll', checkVisibility);
+});
+</script>
 {% endblock %}

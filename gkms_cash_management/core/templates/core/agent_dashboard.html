@@ -5,1033 +5,846 @@
 
 {% block extra_css %}
 <style>
-/* Enhanced Agent Dashboard Header with greater visibility */
-.agent-header {
-  background: linear-gradient(135deg, #4895ef, #4cc9f0); /* Deeper, more contrasting gradient */
-  border-radius: 16px;
-  padding: 2.5rem; /* More generous padding */
-  margin-bottom: 2.5rem;
+/* Base theme variables */
+:root {
+  --gkms-red: #E50914;
+  --gkms-red-dark: #B71C1C;
+  --gkms-red-light: #FF3B30;
+  --gkms-black: #121212;
+  --gkms-dark-gray: #212529;
+  --gkms-light-gray: #f8f9fa;
+  --gkms-white: #ffffff;
+  
+  --gradient-primary: linear-gradient(135deg, var(--gkms-red), var(--gkms-red-dark));
+  --gradient-horizontal: linear-gradient(90deg, var(--gkms-red), var(--gkms-red-dark));
+  --gradient-accent: linear-gradient(135deg, var(--gkms-red-light), var(--gkms-red));
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+  
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --border-radius: 12px;
+}
+
+/* Dashboard container */
+.dashboard-container {
+  background-color: #f5f5f7;
+  min-height: 100vh;
+  padding: 1.5rem 0;
+}
+
+/* Modern grid system */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(min-content, max-content);
+  gap: 1rem;
+}
+
+/* Welcome section */
+.welcome-banner {
+  grid-column: span 12;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--gradient-horizontal);
+  border-radius: var(--border-radius);
+  padding: 1.25rem 1.5rem;
+  color: white;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+
+.welcome-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,.1)' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+
+.welcome-banner h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.welcome-banner .location {
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+.welcome-date {
+  background: rgba(255,255,255,0.2);
+  padding: 0.4rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  backdrop-filter: blur(5px);
+}
+
+/* Metrics cards */
+.metrics-grid {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.metric-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
   position: relative;
   overflow: hidden;
-  color: white;
-  box-shadow: 
-    0 15px 35px rgba(76, 201, 240, 0.3),
-    0 5px 15px rgba(0, 0, 0, 0.1); /* Enhanced shadow for more depth */
-  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Add a subtle pattern overlay for visual texture */
-.agent-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJkb3RzIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNCIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNkb3RzKSIgLz48L3N2Zz4=');
-  opacity: 0.6; /* Increased opacity for greater visibility */
+.metric-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
 }
 
-/* Add a highlight accent stripe */
-.agent-header::after {
+.metric-card::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
-  width: 6px; 
-  background: linear-gradient(to bottom, #3a0ca3, #4361ee);
-  border-top-left-radius: 16px;
-  border-bottom-left-radius: 16px;
+  width: 4px;
+  background: var(--gradient-primary);
 }
 
-/* Enhanced title styling */
-.agent-header h1 {
-  font-size: 2.5rem; 
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Text shadow for better contrast */
-}
-
-.agent-header p {
-  font-size: 1.1rem;
-  opacity: 0.9;
-  max-width: 80%;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* Enhance stat cards inside header */
-.cash-status {
-  background: rgba(255, 255, 255, 0.2); /* More visible background */
-  backdrop-filter: blur(8px); /* Stronger blur effect */
-  border-radius: 12px;
-  padding: 1.25rem 1.5rem;
-  margin-top: 1.5rem;
-  transition: all 0.3s;
-  border: 1px solid rgba(255, 255, 255, 0.25); /* Add border for definition */
-  display: flex;
-  align-items: center;
-}
-
-.cash-status:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-
-.cash-status .icon {
-  width: 60px; /* Larger */
-  height: 60px;
-  border-radius: 12px;
+.metric-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
-  font-size: 1.75rem; /* Larger icons */
-  margin-right: 1.25rem;
-  flex-shrink: 0;
-}
-
-.cash-status .amount {
-  font-size: 2.25rem; /* Larger amount */
-  font-weight: 800;
-  margin-bottom: 0.25rem;
-  line-height: 1.1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.cash-status .label {
-  font-size: 1rem;
-  opacity: 0.9;
-}
-
-/* Status indicator for cash position */
-.cash-status .status-indicator {
-  margin-left: auto;
-  width: 70px;
-  text-align: center;
-}
-
-.cash-status .status-circle {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 0.5rem;
+  border-radius: 10px;
+  background: rgba(229, 9, 20, 0.1);
+  color: var(--gkms-red);
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.metric-data {
+  flex: 1;
+}
+
+.metric-value {
   font-size: 1.25rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.status-safe {
-  background: rgba(76, 201, 240, 0.25);
-  color: white;
+.metric-label {
+  font-size: 0.7rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
 }
 
-.status-warning {
-  background: rgba(252, 163, 17, 0.25);
-  color: white;
-}
-
-.status-danger {
-  background: rgba(247, 37, 133, 0.25);
-  color: white;
-}
-
-/* Animated accent lights */
-@keyframes glow {
-  0% { opacity: 0.3; }
-  50% { opacity: 0.8; }
-  100% { opacity: 0.3; }
-}
-
-.agent-header .accent-light {
-  position: absolute;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: #4cc9f0;
-  filter: blur(80px);
-  opacity: 0.3;
-  z-index: 0;
-  animation: glow 6s infinite;
-}
-
-.agent-header .accent-light:nth-child(1) {
-  top: -30px;
-  right: 10%;
-  background: #3a0ca3;
-}
-
-.agent-header .accent-light:nth-child(2) {
-  bottom: -30px;
-  left: 15%;
-  background: #4cc9f0;
-  animation-delay: 2s;
-}
-
-/* Enhanced cash values with status color */
-.cash-safe {
-  color: #4cc9f0;
-}
-
-.cash-warning {
-  color: #fca311;
-}
-
-.cash-danger {
-  color: #f72585;
-}
-
-.agent-card {
-  border-radius: 16px;
+/* Main content areas */
+.main-card {
   background: white;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  margin-bottom: 1.5rem;
   height: 100%;
-  transition: all 0.3s;
-  animation: fadeInUp 0.5s forwards;
-  opacity: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.agent-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-.agent-card-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+.main-card-header {
+  background: var(--gradient-horizontal);
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.agent-card-header h5 {
-  margin: 0;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
+.header-icon {
+  margin-right: 0.5rem;
 }
 
-.agent-card-header h5 i {
+.main-card-body {
+  padding: 1rem;
+  flex: 1;
+  overflow: auto;
+}
+
+/* Cards layout */
+.card-quick-actions {
+  grid-column: span 12;
+  margin-bottom: 0.5rem;
+}
+
+.card-cash-summary {
+  grid-column: span 8;
+  grid-row: span 1;
+}
+
+.card-eod-status {
+  grid-column: span 4;
+  grid-row: span 1;
+}
+
+/* Compact notification styles */
+.notifications-list {
+  grid-column: span 12;
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.25rem 0.75rem;
+}
+
+.notification-card {
+  flex: 0 0 280px;
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+.notification-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.notification-card .notification-icon {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  background: rgba(229, 9, 20, 0.1);
+  color: var(--gkms-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.notification-card .notification-content {
+  flex: 1;
+}
+
+.notification-card .notification-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notification-card .notification-text {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.notification-card .notification-time {
+  font-size: 0.7rem;
+  color: #adb5bd;
+}
+
+.notification-card .notification-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+/* Compact cash tracking */
+.cash-track-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.cash-track-item {
+  flex: 1 0 120px;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cash-track-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gradient-primary);
+}
+
+.cash-track-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.cash-track-value {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Quick action buttons */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: var(--transition);
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-btn:hover {
+  background: #e9ecef;
+  color: inherit;
+}
+
+.quick-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gradient-primary);
+}
+
+.quick-action-icon {
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-light);
-  color: white;
+  background: rgba(229, 9, 20, 0.1);
+  color: var(--gkms-red);
   border-radius: 8px;
+  margin-right: 0.75rem;
 }
 
-.agent-card-body {
-  padding: 1.5rem;
-}
-
-.agent-card:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.agent-card:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
-.agent-card:nth-child(4) {
-  animation-delay: 0.3s;
-}
-
-.delivery-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  background: #f9fafb;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s;
-}
-
-.delivery-item:hover {
-  transform: translateX(5px);
-  background: white;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-.delivery-item .icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.25rem;
-  margin-right: 1rem;
-  background: var(--success);
-}
-
-.delivery-item .info {
+.quick-action-text {
   flex: 1;
 }
 
-.delivery-item .amount {
+.quick-action-title {
   font-weight: 600;
-  font-size: 1.125rem;
+  font-size: 0.85rem;
+  margin: 0;
 }
 
-.request-item {
-  display: flex;
-  align-items: center;
+.quick-action-subtitle {
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* EOD Report Status Styles */
+.eod-status {
   padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  transition: all 0.3s;
-  background: #f9fafb;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.request-item:hover {
-  transform: translateX(5px);
-  background: white;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-.request-item .icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.25rem;
-  margin-right: 1rem;
-  background: var(--primary);
-}
-
-.request-item .info {
-  flex: 1;
-}
-
-.badge-pulse {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(76, 201, 240, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(76, 201, 240, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(76, 201, 240, 0);
-  }
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.action-button {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  border-radius: 12px;
-  background: white;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
-  transition: all 0.3s;
-  text-decoration: none;
-  color: #333;
-  border: none;
+  position: relative;
   text-align: center;
 }
 
-.action-button:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+.eod-badge {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
 }
 
-.action-button .icon {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  width: 70px;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #f0f2f5;
-  transition: all 0.3s;
+.eod-badge.badge-danger {
+  background: rgba(229, 9, 20, 0.1);
+  color: var(--gkms-red);
 }
 
-.action-button:hover .icon {
-  background: var(--primary-light);
-  color: white;
-  transform: scale(1.1);
+.eod-badge.badge-success {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
 }
 
-.action-button .text {
-  font-weight: 500;
-  margin-top: 0.5rem;
+/* Compact table design */
+.compact-table {
+  width: 100%;
+  font-size: 0.85rem;
 }
 
-/* Cash limit indicator */
-.limit-indicator {
-  height: 5px;
-  background: #e9ecef;
-  border-radius: 3px;
-  margin-top: 0.5rem;
-  overflow: hidden;
+.compact-table th {
+  padding: 0.5rem;
+  font-weight: 600;
+  color: #6c757d;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.limit-indicator .progress {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 1s ease-in-out;
+.compact-table td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.limit-indicator.safe .progress {
-  background: var(--success);
+.compact-table tr:last-child td {
+  border-bottom: none;
 }
 
-.limit-indicator.warning .progress {
-  background: var(--warning);
+.status-pill {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 50px;
 }
 
-.limit-indicator.danger .progress {
-  background: var(--danger);
+.status-pill.status-pending {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
 }
 
-/* Floating notification badge */
-.floating-notification {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--gradient-2);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  cursor: pointer;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s;
-  z-index: 1000;
+.status-pill.status-approved {
+  background: rgba(40, 167, 69, 0.15);
+  color: #28a745;
 }
 
-.floating-notification:hover {
-  transform: scale(1.1);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
-.floating-notification .indicator {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--danger);
-  color: white;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  border: 2px solid white;
+.status-pill.status-rejected {
+  background: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
 }
 
 /* Animations */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.float-animation {
-  animation: float 3s ease-in-out infinite;
+.animate-fade-in {
+  animation: fadeIn 0.5s forwards;
 }
 
-/* Responsive styles */
+/* Responsive adjustments */
 @media (max-width: 992px) {
-  .action-buttons {
-    flex-wrap: wrap;
+  .dashboard-grid {
+    gap: 0.75rem;
   }
   
-  .action-button {
-    min-width: calc(50% - 0.5rem);
+  .card-cash-summary,
+  .card-eod-status {
+    grid-column: span 12;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 576px) {
-  .action-button {
-    min-width: 100%;
-    margin-bottom: 1rem;
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .welcome-date {
+    margin-top: 0.5rem;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h1 class="h3 mb-0">Welcome, {{ user.get_full_name|default:user.username }}</h1>
-                    <p class="text-muted">{{ agent.location.name }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
+<div class="dashboard-container">
+  <div class="container-fluid">
     {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
     {% endif %}
-
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Daily Cash Position</h5>
-                </div>
-                <div class="card-body">
-                    <h2 class="h4 mb-3">{{ today|date:"F j, Y" }}</h2>
-                    
-                    <div class="mb-2">
-                        <small class="text-muted">Opening Balance</small>
-                        <h5>${{ daily_data.previous_day_balance|floatformat:2 }}</h5>
-                    </div>
-                    
-                    <div class="mb-2">
-                        <small class="text-muted">Cash Delivered Today</small>
-                        <h5>${{ daily_data.cash_delivered_today|floatformat:2 }}</h5>
-                    </div>
-                    
-                    <div class="mb-2">
-                        <small class="text-muted">Payouts at 3PM</small>
-                        <h5>${{ daily_data.payout_at_3pm|floatformat:2 }}</h5>
-                    </div>
-                    
-                    <div class="mb-2">
-                        <small class="text-muted">Cash Position at 3PM</small>
-                        <h5>${{ daily_data.cash_position_at_3pm|floatformat:2 }}</h5>
-                    </div>
-                    
-                    <div class="mb-2">
-                        <small class="text-muted">Projected Ending Position</small>
-                        <h5>${{ daily_data.projected_ending_position|floatformat:2 }}</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-warning">
-                    <h5 class="card-title mb-0">EOD Report Status</h5>
-                </div>
-                <div class="card-body">
-                    {% if has_eod_report %}
-                        <div class="text-center mb-4">
-                            <div class="mb-3">
-                                <span class="badge bg-success fs-6">Report Submitted</span>
-                            </div>
-                            <p>You have submitted your End of Day report for today.</p>
-                            <div class="mt-3">
-                                <a href="{% url 'submit_eod_report' %}" class="btn btn-outline-warning">
-                                    <i class="bi bi-pencil"></i> Update Report
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h6>Summary</h6>
-                                <div class="row">
-                                    <div class="col-7">Closing Balance:</div>
-                                    <div class="col-5 text-end">${{ eod_report.closing_balance|floatformat:2 }}</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-7">Variance:</div>
-                                    <div class="col-5 text-end 
-                                        {% if eod_report.variance > 0 %}text-warning
-                                        {% elif eod_report.variance < 0 %}text-danger
-                                        {% else %}text-success{% endif %}">
-                                        ${{ eod_report.variance|floatformat:2 }}
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-7">Status:</div>
-                                    <div class="col-5 text-end">
-                                        {% if eod_report.status == 'pending' %}
-                                            <span class="badge bg-warning">Pending</span>
-                                        {% elif eod_report.status == 'approved' %}
-                                            <span class="badge bg-success">Approved</span>
-                                        {% elif eod_report.status == 'rejected' %}
-                                            <span class="badge bg-danger">Rejected</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="text-center mb-4">
-                            <div class="mb-3">
-                                <span class="badge bg-danger fs-6">Report Needed</span>
-                            </div>
-                            <p>You have not submitted your End of Day report for today.</p>
-                            <div class="mt-3">
-                                <a href="{% url 'submit_eod_report' %}" class="btn btn-warning">
-                                    <i class="bi bi-file-earmark-text"></i> Submit EOD Report
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="alert alert-info">
-                            <small>
-                                <i class="bi bi-info-circle-fill me-1"></i>
-                                End of Day reports must be submitted daily. Please ensure you count all cash and complete your report before leaving.
-                            </small>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'submit_eod_report' %}" class="btn btn-lg btn-outline-primary">
-                            <i class="bi bi-file-earmark-text me-2"></i> EOD Report
-                        </a>
-                        
-                        <button class="btn btn-lg btn-outline-success">
-                            <i class="bi bi-cash-stack me-2"></i> Cash Delivery
-                        </button>
-                        
-                        <button class="btn btn-lg btn-outline-info">
-                            <i class="bi bi-currency-exchange me-2"></i> Record Payout
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">Recent EOD Reports</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Closing Balance</th>
-                                    <th>Variance</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for report in recent_reports %}
-                                <tr>
-                                    <td>{{ report.processing_date|date:"M d, Y" }}</td>
-                                    <td>${{ report.closing_balance|floatformat:2 }}</td>
-                                    <td class="
-                                        {% if report.variance > 0 %}text-warning
-                                        {% elif report.variance < 0 %}text-danger
-                                        {% else %}text-success{% endif %}
-                                    ">
-                                        ${{ report.variance|floatformat:2 }}
-                                    </td>
-                                    <td>
-                                        {% if report.status == 'pending' %}
-                                            <span class="badge bg-warning">Pending</span>
-                                        {% elif report.status == 'approved' %}
-                                            <span class="badge bg-success">Approved</span>
-                                        {% elif report.status == 'rejected' %}
-                                            <span class="badge bg-danger">Rejected</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center">No recent reports found.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <div class="dashboard-grid">
+      <!-- Welcome Banner -->
+      <div class="welcome-banner animate-fade-in">
+        <div>
+          <h1>Welcome, {{ user.get_full_name|default:user.username }}</h1>
+          <div class="location">{{ agent.location.name }}</div>
+        </div>
+        <div class="welcome-date">{{ today|date:"F j, Y" }}</div>
+      </div>
+      
+      <!-- Key Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card animate-fade-in" style="animation-delay: 0.1s">
+          <div class="metric-icon">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <div class="metric-data">
+            <p class="metric-value">${{ daily_data.previous_day_balance|floatformat:2 }}</p>
+            <p class="metric-label">Opening Balance</p>
+          </div>
         </div>
         
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="card-title mb-0">Notifications</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        {% if notifications %}
-                            {% for notification in notifications %}
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                <div class="ms-2 me-auto">
-                                    <div class="fw-bold">{{ notification.title }}</div>
-                                    {{ notification.message }}
-                                    <div class="text-muted mt-1">
-                                        <small>{{ notification.created_at|date:"M d, Y H:i" }}</small>
-                                    </div>
-                                </div>
-                                {% if notification.is_read %}
-                                <span class="badge bg-secondary rounded-pill">Read</span>
-                                {% else %}
-                                <span class="badge bg-primary rounded-pill">New</span>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="list-group-item">No new notifications.</li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
+        <div class="metric-card animate-fade-in" style="animation-delay: 0.2s">
+          <div class="metric-icon">
+            <i class="fas fa-truck"></i>
+          </div>
+          <div class="metric-data">
+            <p class="metric-value">${{ daily_data.cash_delivered_today|floatformat:2 }}</p>
+            <p class="metric-label">Delivered Today</p>
+          </div>
         </div>
+        
+        <div class="metric-card animate-fade-in" style="animation-delay: 0.3s">
+          <div class="metric-icon">
+            <i class="fas fa-hand-holding-usd"></i>
+          </div>
+          <div class="metric-data">
+            <p class="metric-value">${{ daily_data.payout_at_3pm|floatformat:2 }}</p>
+            <p class="metric-label">Payouts (3PM)</p>
+          </div>
+        </div>
+        
+        <div class="metric-card animate-fade-in" style="animation-delay: 0.4s">
+          <div class="metric-icon">
+            <i class="fas fa-money-bill-wave"></i>
+          </div>
+          <div class="metric-data">
+            <p class="metric-value">${{ daily_data.cash_position_at_3pm|floatformat:2 }}</p>
+            <p class="metric-label">Current Position</p>
+          </div>
+        </div>
+        
+        <div class="metric-card animate-fade-in" style="animation-delay: 0.5s">
+          <div class="metric-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="metric-data">
+            <p class="metric-value">${{ daily_data.projected_ending_position|floatformat:2 }}</p>
+            <p class="metric-label">Projected EOD</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="card-quick-actions">
+        <div class="main-card animate-fade-in" style="animation-delay: 0.2s">
+          <div class="main-card-header">
+            <div>
+              <i class="fas fa-bolt header-icon"></i>
+              Quick Actions
+            </div>
+          </div>
+          <div class="main-card-body">
+            <div class="quick-actions">
+              <a href="{% url 'submit_eod_report' %}" class="quick-action-btn">
+                <div class="quick-action-icon">
+                  <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="quick-action-text">
+                  <p class="quick-action-title">EOD Report</p>
+                  <p class="quick-action-subtitle">Submit your daily report</p>
+                </div>
+              </a>
+              
+              <a href="#" class="quick-action-btn">
+                <div class="quick-action-icon">
+                  <i class="fas fa-truck"></i>
+                </div>
+                <div class="quick-action-text">
+                  <p class="quick-action-title">Cash Delivery</p>
+                  <p class="quick-action-subtitle">Record cash receipts</p>
+                </div>
+              </a>
+              
+              <a href="#" class="quick-action-btn">
+                <div class="quick-action-icon">
+                  <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="quick-action-text">
+                  <p class="quick-action-title">Record Payout</p>
+                  <p class="quick-action-subtitle">Process customer payout</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Cash Summary -->
+      <div class="card-cash-summary">
+        <div class="main-card animate-fade-in" style="animation-delay: 0.3s">
+          <div class="main-card-header">
+            <div>
+              <i class="fas fa-history header-icon"></i>
+              Recent EOD Reports
+            </div>
+            <button class="btn btn-sm btn-light btn-sm" id="viewAllReportsBtn">
+              View All
+            </button>
+          </div>
+          <div class="main-card-body">
+            <div class="table-responsive">
+              <table class="compact-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Closing Balance</th>
+                    <th>Variance</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for report in recent_reports %}
+                  <tr>
+                    <td>{{ report.processing_date|date:"M d, Y" }}</td>
+                    <td><b>${{ report.closing_balance|floatformat:2 }}</b></td>
+                    <td class="{% if report.variance > 0 %}text-warning{% elif report.variance < 0 %}text-danger{% else %}text-success{% endif %}">
+                      ${{ report.variance|floatformat:2 }}
+                    </td>
+                    <td>
+                      {% if report.status == 'pending' %}
+                        <span class="status-pill status-pending">Pending</span>
+                      {% elif report.status == 'approved' %}
+                        <span class="status-pill status-approved">Approved</span>
+                      {% elif report.status == 'rejected' %}
+                        <span class="status-pill status-rejected">Rejected</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center py-3 text-muted">
+                      <i class="fas fa-file-alt fa-2x mb-2"></i>
+                      <p class="mb-0">No recent reports found</p>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- EOD Report Status -->
+      <div class="card-eod-status">
+        <div class="main-card animate-fade-in" style="animation-delay: 0.4s">
+          <div class="main-card-header">
+            <div>
+              <i class="fas fa-file-invoice header-icon"></i>
+              EOD Report Status
+            </div>
+          </div>
+          <div class="main-card-body d-flex align-items-center justify-content-center">
+            <div class="eod-status">
+              {% if has_eod_report %}
+                <div class="eod-badge badge-success">
+                  Report Submitted
+                </div>
+                <p class="mb-3 small">Report submitted successfully for today.</p>
+                
+                <div class="d-grid gap-2">
+                  <a href="{% url 'submit_eod_report' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit me-1"></i>Update Report
+                  </a>
+                </div>
+              {% else %}
+                <div class="eod-badge badge-danger">
+                  Report Needed
+                </div>
+                <p class="mb-3 small">End of day report required.</p>
+                
+                <div class="d-grid">
+                  <a href="{% url 'submit_eod_report' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-file-alt me-1"></i>Submit EOD Report
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Notifications Horizontal Scroll -->
+      {% if notifications %}
+      <div class="notifications-list">
+        {% for notification in notifications %}
+        <div class="notification-card animate-fade-in" style="animation-delay: {{ forloop.counter|add:5|divisibleby:10 }}s">
+          <div class="notification-icon">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">{{ notification.title }}</div>
+            <div class="notification-text">{{ notification.message }}</div>
+            <div class="notification-time">{{ notification.created_at|date:"M d, g:i A" }}</div>
+          </div>
+          {% if notification.is_read %}
+          <span class="badge bg-secondary rounded-pill notification-badge">Read</span>
+          {% else %}
+          <span class="badge bg-danger rounded-pill notification-badge">New</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Add enhanced tilt effect to the cash status cards
-  document.querySelectorAll('.cash-status').forEach(card => {
-    card.addEventListener('mousemove', function(e) {
-      const rect = this.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      // Calculate percentage position
-      const xPercent = x / rect.width;
-      const yPercent = y / rect.height;
-      
-      // Calculate rotation (max 3 degrees)
-      const rotateX = (0.5 - yPercent) * 3;
-      const rotateY = (xPercent - 0.5) * 3;
-      
-      // Apply subtle transform
-      this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
-    });
-    
-    card.addEventListener('mouseleave', function() {
-      this.style.transform = '';
-    });
-  });
-  
-  // Dynamic color coding based on cash position
-  const cashPositionElement = document.querySelector('.cash-status .amount');
-  const cashPosition = parseFloat(cashPositionElement.textContent.replace('$', '').replace(',', ''));
-  const statusCircle = document.querySelector('.status-circle');
-  const statusText = document.querySelector('.status-indicator .small');
-  
-  // Get cash limits (these would ideally come from your backend data)
-  const warningLimit = 75000; // Example threshold
-  const dangerLimit = 100000; // Example threshold
-  
-  if (cashPosition > dangerLimit) {
-    cashPositionElement.classList.remove('cash-safe', 'cash-warning');
-    cashPositionElement.classList.add('cash-danger');
-    statusCircle.classList.remove('status-safe', 'status-warning');
-    statusCircle.classList.add('status-danger');
-    statusCircle.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-    statusText.textContent = 'Danger';
-  } else if (cashPosition > warningLimit) {
-    cashPositionElement.classList.remove('cash-safe', 'cash-danger');
-    cashPositionElement.classList.add('cash-warning');
-    statusCircle.classList.remove('status-safe', 'status-danger');
-    statusCircle.classList.add('status-warning');
-    statusCircle.innerHTML = '<i class="fas fa-exclamation"></i>';
-    statusText.textContent = 'Warning';
-  }
-  
-  // Add number counting animation
-  function animateCounter(el) {
-    const value = parseFloat(el.textContent.replace('$', '').replace(',', ''));
-    let startValue = 0;
-    const duration = 1500;
+  // Animate counters with modern number formatting
+  const animateCounter = (el) => {
+    const target = parseFloat(el.textContent.replace(/[^0-9.-]+/g, ''));
+    const duration = 1000;
+    const start = 0;
     let startTime = null;
     
     function animate(timestamp) {
       if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      const currentValue = startValue + easedProgress * (value - startValue);
-      el.textContent = '$' + currentValue.toFixed(2);
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const value = start + (target - start) * easeOutQuart;
+      
+      // Format with commas for thousands
+      const formattedValue = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+      }).format(value);
+      
+      el.textContent = formattedValue;
+      
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
     }
     
     requestAnimationFrame(animate);
-  }
+  };
   
-  // Animate all amount values
-  document.querySelectorAll('.cash-status .amount').forEach(animateCounter);
-  
-  // Add animated progress to limit indicators
-  document.querySelectorAll('.limit-indicator .progress').forEach(progress => {
-    const originalWidth = progress.style.width;
-    progress.style.width = '0';
-    
+  // Apply counter animation with staggered delay
+  document.querySelectorAll('.metric-value').forEach((counter, index) => {
     setTimeout(() => {
-      progress.style.width = originalWidth;
-    }, 500);
+      animateCounter(counter);
+    }, index * 100);
   });
   
-  // View Limits modal
-  document.getElementById('viewLimitsBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    const limitsModal = document.createElement('div');
-    limitsModal.className = 'modal fade';
-    limitsModal.id = 'limitsModal';
-    limitsModal.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
-          <div class="modal-header" style="background: var(--gradient-2); color: white;">
-            <h5 class="modal-title">Cash Limits for {{ location.name }}</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body py-4">
-            <div class="row g-4">
-              <div class="col-md-4">
-                <div class="text-center">
-                  <div class="mb-2" style="font-size: 2rem; color: var(--primary);">
-                    <i class="fas fa-shield-alt"></i>
-                  </div>
-                  <h5>Insurance Limit</h5>
-                  <div class="h4">$100,000</div>
-                  <div class="limit-indicator safe mt-2">
-                    <div class="progress" style="width: 60%;"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="text-center">
-                  <div class="mb-2" style="font-size: 2rem; color: var(--primary);">
-                    <i class="fas fa-moon"></i>
-                  </div>
-                  <h5>EOD Limit</h5>
-                  <div class="h4">$50,000</div>
-                  <div class="limit-indicator warning mt-2">
-                    <div class="progress" style="width: 75%;"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="text-center">
-                  <div class="mb-2" style="font-size: 2rem; color: var(--primary);">
-                    <i class="fas fa-business-time"></i>
-                  </div>
-                  <h5>Working Limit</h5>
-                  <div class="h4">$25,000</div>
-                  <div class="limit-indicator safe mt-2">
-                    <div class="progress" style="width: 40%;"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="alert alert-info mt-4 mb-0" style="border-radius: 12px;">
-              <i class="fas fa-info-circle me-2"></i>
-              Your current cash position is within safe limits. Contact your manager if you need temporary limit increases.
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(limitsModal);
-    
-    const modal = new bootstrap.Modal(limitsModal);
-    modal.show();
-    
-    limitsModal.addEventListener('hidden.bs.modal', function() {
-      document.body.removeChild(limitsModal);
-    });
-    
-    // Animate progress bars
-    setTimeout(() => {
-      const progressBars = limitsModal.querySelectorAll('.progress');
-      progressBars.forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0';
-        setTimeout(() => {
-          bar.style.width = width;
-        }, 100);
-      });
-    }, 300);
-  });
-  
-  // Check Balance modal
-  document.getElementById('checkBalanceBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    const balanceModal = document.createElement('div');
-    balanceModal.className = 'modal fade';
-    balanceModal.id = 'balanceModal';
-    balanceModal.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
-          <div class="modal-header" style="background: var(--gradient-2); color: white;">
-            <h5 class="modal-title">Current Cash Balance</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body py-4">
-            <div class="text-center mb-4">
-              <div style="font-size: 3rem; color: var(--primary);" class="mb-3">
-                <i class="fas fa-coins"></i>
-              </div>
-              <h2 class="display-4 fw-bold">${{ daily_data.cash_position_at_3pm|floatformat:2 }}</h2>
-              <p class="text-muted">Last updated today at 3:00 PM</p>
-            </div>
-            
-            <div class="row g-3">
-              <div class="col-6">
-                <div style="background: #f8f9fa; border-radius: 12px; padding: 1rem;">
-                  <div class="text-muted mb-1">Previous Balance</div>
-                  <div class="h5">${{ daily_data.previous_day_balance|floatformat:2 }}</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div style="background: #f8f9fa; border-radius: 12px; padding: 1rem;">
-                  <div class="text-muted mb-1">Cash Delivered</div>
-                  <div class="h5 text-success">+${{ daily_data.cash_delivered_today|floatformat:2 }}</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div style="background: #f8f9fa; border-radius: 12px; padding: 1rem;">
-                  <div class="text-muted mb-1">Payouts (3PM)</div>
-                  <div class="h5 text-danger">-${{ daily_data.payout_at_3pm|floatformat:2 }}</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div style="background: #f8f9fa; border-radius: 12px; padding: 1rem;">
-                  <div class="text-muted mb-1">Projected EOD</div>
-                  <div class="h5">${{ daily_data.projected_ending_position|floatformat:2 }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(balanceModal);
-    
-    const modal = new bootstrap.Modal(balanceModal);
-    modal.show();
-    
-    balanceModal.addEventListener('hidden.bs.modal', function() {
-      document.body.removeChild(balanceModal);
-    });
-  });
-  
-  // Show notification toast when clicking the notification bell
-  document.querySelector('.floating-notification').addEventListener('click', function() {
+  // Create custom toast notifications
+  const createToast = (message, type = 'info') => {
     const toast = document.createElement('div');
-    toast.className = 'toast position-fixed bottom-0 end-0 m-4';
-    toast.style.zIndex = '1050';
-    toast.style.borderRadius = '12px';
-    toast.style.overflow = 'hidden';
-    toast.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
-    toast.style.border = 'none';
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.backgroundColor = 'white';
+    toast.style.borderRadius = '8px';
+    toast.style.padding = '12px 16px';
+    toast.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+    toast.style.display = 'flex';
+    toast.style.alignItems = 'center';
+    toast.style.maxWidth = '300px';
+    toast.style.zIndex = '9999';
+    toast.style.transform = 'translateY(100%)';
     toast.style.opacity = '0';
     toast.style.transition = 'all 0.3s ease';
+    
+    // Icon based on type
+    const iconColor = type === 'success' ? '#28a745' : 
+                     type === 'error' ? '#dc3545' : 
+                     type === 'warning' ? '#ffc107' : '#0d6efd';
+    
+    const iconBg = `rgba(${type === 'success' ? '40,167,69,0.1' : 
+                         type === 'error' ? '220,53,69,0.1' : 
+                         type === 'warning' ? '255,193,7,0.1' : '13,110,253,0.1'})`;
+    
     toast.innerHTML = `
-      <div class="toast-header" style="background: var(--gradient-2); color: white;">
-        <i class="fas fa-bell me-2"></i>
-        <strong class="me-auto">Notification</strong>
-        <small>Just now</small>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: ${iconBg}; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}" style="color: ${iconColor};"></i>
       </div>
-      <div class="toast-body">
-        <p class="mb-1"><strong>Cash Delivery Scheduled</strong></p>
-        <p class="mb-0 small">You have a new cash delivery scheduled for tomorrow at 10:00 AM.</p>
-      </div>
+      <div style="flex: 1;">${message}</div>
+      <button style="background: transparent; border: none; cursor: pointer; font-size: 16px; margin-left: 8px; opacity: 0.6; color: #6c757d;">×</button>
     `;
     
     document.body.appendChild(toast);
     
-    // Use Bootstrap's Toast API
-    const bsToast = new bootstrap.Toast(toast, {
-      autohide: true,
-      delay: 5000
-    });
-    
-    bsToast.show();
-    
-    // Add custom animation
     setTimeout(() => {
+      toast.style.transform = 'translateY(0)';
       toast.style.opacity = '1';
-      toast.style.transform = 'translateY(-20px)';
     }, 100);
     
-    toast.addEventListener('hidden.bs.toast', function() {
-      document.body.removeChild(toast);
+    const closeBtn = toast.querySelector('button');
+    closeBtn.addEventListener('click', () => {
+      toast.style.transform = 'translateY(100%)';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
     });
     
-    // Decrease the notification count
-    const indicator = this.querySelector('.indicator');
-    const count = parseInt(indicator.textContent);
-    if (count > 1) {
-      indicator.textContent = count - 1;
-    } else {
-      this.removeChild(indicator);
-    }
+    setTimeout(() => {
+      toast.style.transform = 'translateY(100%)';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 5000);
+  };
+  
+  // Handle view all reports button
+  document.getElementById('viewAllReportsBtn').addEventListener('click', function() {
+    createToast('Navigating to all reports would go to the reports page', 'info');
   });
 });
 </script>

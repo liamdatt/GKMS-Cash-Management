@@ -4,20 +4,20 @@
 <style>
 /* Ultra Modern UI Styles */
 :root {
-  /* Modern Color Palette - Vibrant blues and purples */
-  --primary: #4361ee;
-  --primary-light: #4895ef;
-  --secondary: #3a0ca3;
-  --success: #4cc9f0;
-  --danger: #f72585;
-  --warning: #fca311;
-  --info: #4cc9f0;
+  /* Modern Color Palette - Red, Black and White */
+  --primary: #E50914;
+  --primary-light: #FF3B30;
+  --secondary: #B71C1C;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --info: #17a2b8;
   --light: #f8f9fa;
   --dark: #212529;
-  --gradient-1: linear-gradient(135deg, #4361ee, #3a0ca3);
-  --gradient-2: linear-gradient(135deg, #4cc9f0, #4895ef);
-  --gradient-3: linear-gradient(135deg, #f72585, #7209b7);
-  --gradient-4: linear-gradient(135deg, #fca311, #e76f51);
+  --gradient-1: linear-gradient(135deg, #E50914, #B71C1C);
+  --gradient-2: linear-gradient(135deg, #FF3B30, #E50914);
+  --gradient-3: linear-gradient(135deg, #dc3545, #B71C1C);
+  --gradient-4: linear-gradient(135deg, #ffc107, #fd7e14);
   --glass: rgba(255, 255, 255, 0.2);
   --glass-dark: rgba(0, 0, 0, 0.05);
 }
@@ -49,9 +49,9 @@
 }
 
 @keyframes pulse-shadow {
-  0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(229, 9, 20, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); }
 }
 
 @keyframes appear {
@@ -63,10 +63,10 @@
 body {
   background-color: #f5f7fa;
   background-image: 
-    linear-gradient(135deg, rgba(67, 97, 238, 0.1) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(67, 97, 238, 0.1) 25%, transparent 25%),
-    linear-gradient(45deg, rgba(76, 201, 240, 0.1) 25%, transparent 25%),
-    linear-gradient(315deg, rgba(76, 201, 240, 0.1) 25%, transparent 25%);
+    linear-gradient(135deg, rgba(229, 9, 20, 0.05) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(229, 9, 20, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(183, 28, 28, 0.05) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(183, 28, 28, 0.05) 25%, transparent 25%);
   background-position: 10px 0, 10px 0, 0 0, 0 0;
   background-size: 20px 20px;
   background-repeat: repeat;
@@ -349,17 +349,17 @@ body {
 }
 
 .ultra-badge.admin {
-  background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, rgba(183, 28, 28, 0.1) 100%);
   color: var(--primary);
 }
 
 .ultra-badge.agent {
-  background: linear-gradient(135deg, rgba(76, 201, 240, 0.1) 0%, rgba(72, 149, 239, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 59, 48, 0.1) 0%, rgba(229, 9, 20, 0.1) 100%);
   color: var(--primary-light);
 }
 
 .ultra-badge.superuser {
-  background: linear-gradient(135deg, rgba(247, 37, 133, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 59, 48, 0.1) 0%, rgba(229, 9, 20, 0.1) 100%);
   color: var(--danger);
 }
 
@@ -496,7 +496,7 @@ body {
 
 /* Animated Background */
 .bg-animated {
-  background: linear-gradient(-45deg, #4361ee08, #4895ef08, #3a0ca308, #4cc9f008);
+  background: linear-gradient(-45deg, #E5091408, #FF3B3008, #B71C1C08, #DC354508);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
 }
@@ -520,7 +520,7 @@ body {
   box-shadow: 
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04),
-    0 0 15px rgba(67, 97, 238, 0.3);
+    0 0 15px rgba(229, 9, 20, 0.3);
   z-index: 2;
 }
 
@@ -589,7 +589,7 @@ body {
 }
 
 .user-row:hover {
-  background-color: rgba(67, 97, 238, 0.05);
+  background-color: rgba(229, 9, 20, 0.05);
 }
 
 .user-row td {
@@ -700,9 +700,9 @@ body {
 
 /* Pulsing Effect */
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
-  70% { box-shadow: 0 0 0 15px rgba(67, 97, 238, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(229, 9, 20, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); }
 }
 
 .pulse-effect {
