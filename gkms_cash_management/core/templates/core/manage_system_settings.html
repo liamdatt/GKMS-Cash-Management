@@ -1,0 +1,70 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Manage System Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">System Settings</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <h4>Cutoff Window Settings</h4>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="cutoff_window_enabled" name="cutoff_window_enabled" {% if settings.cutoff_window_enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="cutoff_window_enabled">Enable Cutoff Window</label>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="cutoff_hour" class="form-label">Cutoff Hour (24-hour format)</label>
+                                <input type="number" class="form-control" id="cutoff_hour" name="cutoff_hour" min="0" max="23" value="{{ settings.cutoff_hour }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="cutoff_minute" class="form-label">Cutoff Minute</label>
+                                <input type="number" class="form-control" id="cutoff_minute" name="cutoff_minute" min="0" max="59" value="{{ settings.cutoff_minute }}" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h4>Business Hours Settings</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="business_hours_start" class="form-label">Business Hours Start (24-hour format)</label>
+                                <input type="number" class="form-control" id="business_hours_start" name="business_hours_start" min="0" max="23" value="{{ settings.business_hours_start }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="business_hours_start_minute" class="form-label">Business Hours Start Minute</label>
+                                <input type="number" class="form-control" id="business_hours_start_minute" name="business_hours_start_minute" min="0" max="59" value="{{ settings.business_hours_start_minute }}" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h4>Emergency Access Settings</h4>
+                    <div class="mb-3">
+                        <label for="emergency_access_duration" class="form-label">Emergency Access Duration (minutes)</label>
+                        <input type="number" class="form-control" id="emergency_access_duration" name="emergency_access_duration" min="1" value="{{ settings.emergency_access_duration }}" required>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

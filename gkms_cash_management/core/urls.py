@@ -31,6 +31,7 @@ urlpatterns = [
     path('create-user/', views.create_user, name='create_user'),
     path('reset-password/<int:user_id>/', views.reset_password, name='reset_password'),
     path('deactivate-user/<int:user_id>/', views.deactivate_user, name='deactivate_user'),
+    path('system-admin/settings/', views.manage_system_settings, name='manage_system_settings'),
     path('debug-profiles/', views.debug_profiles, name='debug_profiles'),
     path('user-profile-debug/<int:user_id>/', views.user_profile_debug, name='user_profile_debug'),
     path('assign-location/', views.assign_location, name='assign_location_no_id'),

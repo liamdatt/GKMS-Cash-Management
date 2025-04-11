@@ -6,7 +6,7 @@ from django.db.models import Q, Sum, Avg
 from django.http import HttpResponse, JsonResponse
 from .models import (
     AgentProfile, Location, LocationLimit, CashDelivery, 
-    CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance, EmergencyAccessRequest
+    CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance, EmergencyAccessRequest, SystemSettings
 )
 from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm, EmergencyAccessRequestForm
 from django.contrib.auth import login, authenticate, logout
@@ -143,17 +143,30 @@ def agent_dashboard(request):
         # Get today's date and current time in EST (Eastern Standard Time)
         today = timezone.now().date()
         
-        # Define cutoff times (8 AM to 3 PM EST)
+        # Get system settings
+        system_settings = SystemSettings.get_settings()
+        
+        # Define cutoff times based on system settings
         current_time = timezone.now()
-        # Adjust for EST if needed - for demo we'll use server time
-        # current_time = timezone.now().astimezone(pytz.timezone('US/Eastern'))
         
-        # Define business hours
-        opening_time = current_time.replace(hour=8, minute=0, second=0, microsecond=0)
-        cutoff_time = current_time.replace(hour=15, minute=0, second=0, microsecond=0)
+        # Define business hours from system settings
+        opening_time = current_time.replace(
+            hour=system_settings.business_hours_start,
+            minute=system_settings.business_hours_start_minute,
+            second=0,
+            microsecond=0
+        )
+        cutoff_time = current_time.replace(
+            hour=system_settings.cutoff_hour,
+            minute=system_settings.cutoff_minute,
+            second=0,
+            microsecond=0
+        )
         
-        # Check if current time is within business hours
-        is_business_hours = opening_time <= current_time <= cutoff_time
+        # Check if cutoff window is enabled and if current time is within business hours
+        is_business_hours = True
+        if system_settings.cutoff_window_enabled:
+            is_business_hours = opening_time <= current_time <= cutoff_time
         
         # Calculate time until cutoff
         if current_time < cutoff_time:
@@ -1434,3 +1447,29 @@ def handle_emergency_request(request, request_id):
             messages.warning(request, f"Emergency access request from {emergency_request.agent.username} has been denied.")
     
     return redirect('review_emergency_requests')
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def manage_system_settings(request):
+    """View for managing system-wide settings."""
+    settings = SystemSettings.get_settings()
+    
+    if request.method == 'POST':
+        # Update settings
+        settings.cutoff_window_enabled = request.POST.get('cutoff_window_enabled') == 'on'
+        settings.cutoff_hour = int(request.POST.get('cutoff_hour', 15))
+        settings.cutoff_minute = int(request.POST.get('cutoff_minute', 0))
+        settings.business_hours_start = int(request.POST.get('business_hours_start', 8))
+        settings.business_hours_start_minute = int(request.POST.get('business_hours_start_minute', 0))
+        settings.emergency_access_duration = int(request.POST.get('emergency_access_duration', 60))
+        settings.updated_by = request.user
+        settings.save()
+        
+        messages.success(request, "System settings have been updated successfully.")
+        return redirect('manage_system_settings')
+    
+    context = {
+        'settings': settings,
+    }
+    
+    return render(request, 'core/manage_system_settings.html', context)

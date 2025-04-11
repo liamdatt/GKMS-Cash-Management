@@ -305,6 +305,30 @@ class EmergencyAccessRequest(models.Model):
     class Meta:
         ordering = ['-requested_at']
 
+class SystemSettings(models.Model):
+    """Global system settings"""
+    cutoff_window_enabled = models.BooleanField(default=True, help_text="Enable/disable the 3 PM cutoff window")
+    cutoff_hour = models.IntegerField(default=15, help_text="Hour of the day for cutoff (24-hour format)")
+    cutoff_minute = models.IntegerField(default=0, help_text="Minute of the hour for cutoff")
+    business_hours_start = models.IntegerField(default=8, help_text="Start hour of business hours (24-hour format)")
+    business_hours_start_minute = models.IntegerField(default=0, help_text="Start minute of business hours")
+    emergency_access_duration = models.IntegerField(default=30, help_text="Duration of emergency access in minutes")
+    last_updated = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='settings_updates')
+
+    class Meta:
+        verbose_name = "System Settings"
+        verbose_name_plural = "System Settings"
+
+    def __str__(self):
+        return "System Settings"
+
+    @classmethod
+    def get_settings(cls):
+        """Get or create system settings"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 

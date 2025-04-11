@@ -520,47 +520,67 @@
   <!-- Quick Actions Section - Moved to top for better accessibility -->
   <div class="quick-actions-section card-animate">
     <h4 class="mb-3">Quick Actions</h4>
-    <div class="row">
-      <div class="col-lg-3 col-md-6 mb-4">
-        <a href="{% url 'manage_users' %}" class="quick-action-card">
-          <div class="icon-circle">
-            <i class="fas fa-users"></i>
-          </div>
-          <h5 class="quick-action-title">Manage Users</h5>
-        </a>
-      </div>
-      <div class="col-lg-3 col-md-6 mb-4">
-        <a href="{% url 'generate_report' %}" class="quick-action-card">
-          <div class="icon-circle">
-            <i class="fas fa-chart-bar"></i>
-          </div>
-          <h5 class="quick-action-title">Generate Reports</h5>
-        </a>
-      </div>
-      <div class="col-lg-3 col-md-6 mb-4">
-        <a href="{% url 'admin_view_eod_reports' %}" class="quick-action-card">
-          <div class="icon-circle">
-            <i class="fas fa-file-invoice-dollar"></i>
-          </div>
-          <h5 class="quick-action-title">View EOD Reports</h5>
-        </a>
-      </div>
-      <div class="col-lg-3 col-md-6 mb-4">
-        <a href="{% url 'review_emergency_requests' %}" class="quick-action-card">
-          <div class="icon-circle">
-            <i class="fas fa-unlock-alt"></i>
-          </div>
-          <h5 class="quick-action-title">Emergency Requests</h5>
-        </a>
-      </div>
-      <div class="col-lg-3 col-md-6 mb-4">
-        <a href="/admin/" class="quick-action-card">
-          <div class="icon-circle">
-            <i class="fas fa-cog"></i>
-          </div>
-          <h5 class="quick-action-title">Admin Panel</h5>
-        </a>
-      </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <a href="{% url 'manage_users' %}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="icon-circle bg-light mb-2">
+                            <i class="fas fa-users text-danger"></i>
+                        </div>
+                        <h5 class="card-title">Manage Users</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'generate_report' %}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="icon-circle bg-light mb-2">
+                            <i class="fas fa-file-alt text-danger"></i>
+                        </div>
+                        <h5 class="card-title">Generate Reports</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'admin_view_eod_reports' %}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="icon-circle bg-light mb-2">
+                            <i class="fas fa-file-invoice-dollar text-danger"></i>
+                        </div>
+                        <h5 class="card-title">View EOD Reports</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'review_emergency_requests' %}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="icon-circle bg-light mb-2">
+                            <i class="fas fa-unlock-alt text-danger"></i>
+                        </div>
+                        <h5 class="card-title">Emergency Requests</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'manage_system_settings' %}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="icon-circle bg-light mb-2">
+                            <i class="fas fa-cogs text-danger"></i>
+                        </div>
+                        <h5 class="card-title">System Settings</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
   </div>
   
