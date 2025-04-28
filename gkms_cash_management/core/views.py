@@ -286,11 +286,18 @@ def request_cash(request):
             if form.is_valid():
                 cash_request = form.save(commit=False)
                 cash_request.location = agent.location
+                
+                # Calculate totals from the form's cleaned data
+                cash_request.total_jmd = form.cleaned_data.get('total_jmd', 0)
+                cash_request.total_usd = form.cleaned_data.get('total_usd', 0)
+                
                 cash_request.save()
                 messages.success(request, "Cash request submitted successfully")
                 return redirect('agent_dashboard')
             else:
-                # Handle invalid form case
+                # For debugging form errors
+                print(f"Form errors: {form.errors}")
+                messages.error(request, "Please correct the errors in the form")
                 return render(request, 'core/request_cash.html', {'form': form})
         else:
             form = CashRequestForm()

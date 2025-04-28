@@ -16,12 +16,16 @@
                     <h4><i class="fas fa-hand-holding-usd me-2"></i>Cash Request Form</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" id="cashRequestForm">
                         {% csrf_token %}
                         
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i> Specify the amount of cash needed by denomination
+                            <i class="fas fa-info-circle me-2"></i> Enter the total amount needed for each denomination you want to request. Leave denominations blank if not needed.
                         </div>
+                        
+                        <!-- Hidden fields for totals -->
+                        <input type="hidden" name="total_jmd" id="total_jmd_hidden" value="0">
+                        <input type="hidden" name="total_usd" id="total_usd_hidden" value="0">
                         
                         <div class="mb-3">
                             <label for="{{ form.delivery_date.id_for_label }}" class="form-label">Delivery Date</label>
@@ -39,56 +43,75 @@
                             {% endif %}
                         </div>
                         
-                        <h5 class="mt-4 mb-3">JMD Denominations</h5>
+                        <h5 class="mt-4 mb-3">JMD Denominations Needed</h5>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.jmd_5000.id_for_label }}" class="form-label">$5,000 Notes</label>
-                                {{ form.jmd_5000 }}
+                                <label for="{{ form.jmd_5000_value.id_for_label }}" class="form-label">$5,000 Notes Total</label>
+                                {{ form.jmd_5000_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.jmd_2000.id_for_label }}" class="form-label">$2,000 Notes</label>
-                                {{ form.jmd_2000 }}
+                                <label for="{{ form.jmd_2000_value.id_for_label }}" class="form-label">$2,000 Notes Total</label>
+                                {{ form.jmd_2000_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.jmd_1000.id_for_label }}" class="form-label">$1,000 Notes</label>
-                                {{ form.jmd_1000 }}
+                                <label for="{{ form.jmd_1000_value.id_for_label }}" class="form-label">$1,000 Notes Total</label>
+                                {{ form.jmd_1000_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.jmd_500.id_for_label }}" class="form-label">$500 Notes</label>
-                                {{ form.jmd_500 }}
+                                <label for="{{ form.jmd_500_value.id_for_label }}" class="form-label">$500 Notes Total</label>
+                                {{ form.jmd_500_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.jmd_100.id_for_label }}" class="form-label">$100 Notes</label>
-                                {{ form.jmd_100 }}
+                                <label for="{{ form.jmd_100_value.id_for_label }}" class="form-label">$100 Notes Total</label>
+                                {{ form.jmd_100_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.jmd_50.id_for_label }}" class="form-label">$50 Notes</label>
-                                {{ form.jmd_50 }}
+                                <label for="{{ form.jmd_50_value.id_for_label }}" class="form-label">$50 Notes Total</label>
+                                {{ form.jmd_50_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                         </div>
                         
-                        <h5 class="mt-4 mb-3">USD Denominations</h5>
+                        <div class="alert alert-success mt-3">
+                            <strong>Total JMD Requested: </strong><span id="total-jmd">$0.00</span>
+                        </div>
+                        
+                        <h5 class="mt-4 mb-3">USD Denominations Needed</h5>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.usd_100.id_for_label }}" class="form-label">$100 Notes</label>
-                                {{ form.usd_100 }}
+                                <label for="{{ form.usd_100_value.id_for_label }}" class="form-label">$100 Notes Total</label>
+                                {{ form.usd_100_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.usd_50.id_for_label }}" class="form-label">$50 Notes</label>
-                                {{ form.usd_50 }}
+                                <label for="{{ form.usd_50_value.id_for_label }}" class="form-label">$50 Notes Total</label>
+                                {{ form.usd_50_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.usd_20.id_for_label }}" class="form-label">$20 Notes</label>
-                                {{ form.usd_20 }}
+                                <label for="{{ form.usd_20_value.id_for_label }}" class="form-label">$20 Notes Total</label>
+                                {{ form.usd_20_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.usd_10.id_for_label }}" class="form-label">$10 Notes</label>
-                                {{ form.usd_10 }}
+                                <label for="{{ form.usd_10_value.id_for_label }}" class="form-label">$10 Notes Total</label>
+                                {{ form.usd_10_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.usd_1.id_for_label }}" class="form-label">$1 Notes</label>
-                                {{ form.usd_1 }}
+                                <label for="{{ form.usd_1_value.id_for_label }}" class="form-label">$1 Notes Total</label>
+                                {{ form.usd_1_value }}
+                                <div class="note-count text-muted small mt-1"></div>
                             </div>
+                        </div>
+                        
+                        <div class="alert alert-success mt-3">
+                            <strong>Total USD Requested: </strong><span id="total-usd">$0.00</span>
                         </div>
                         
                         <div class="d-grid mt-4">
@@ -108,7 +131,18 @@
                 </div>
                 <div class="card-body">
                     <div id="summary">
-                        <p>Enter your request details to see a summary</p>
+                        <h6>JMD Denominations Requested:</h6>
+                        <ul class="list-unstyled" id="jmd-breakdown">
+                        </ul>
+                        <hr>
+                        <h6>USD Denominations Requested:</h6>
+                        <ul class="list-unstyled" id="usd-breakdown">
+                        </ul>
+                        <hr>
+                        <div class="fw-bold">
+                            <div>Total JMD: <span id="summary-total-jmd">$0.00</span></div>
+                            <div>Total USD: <span id="summary-total-usd">$0.00</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -119,6 +153,9 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-info-circle me-2 text-primary"></i> Only fill in the denominations you need
+                        </li>
                         <li class="list-group-item">
                             <i class="fas fa-calendar me-2 text-primary"></i> Request at least 1 business day ahead
                         </li>
@@ -138,57 +175,95 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
-// Simple JavaScript to update the summary when inputs change
 document.addEventListener('DOMContentLoaded', function() {
-    const denomInputs = document.querySelectorAll('input[type="number"]');
-    const summaryDiv = document.getElementById('summary');
+    const form = document.getElementById('cashRequestForm');
+    const denominationInputs = document.querySelectorAll('.denomination-input');
+    const totalJmdHidden = document.getElementById('total_jmd_hidden');
+    const totalUsdHidden = document.getElementById('total_usd_hidden');
     
-    function updateSummary() {
-        let jmdTotal = 0;
-        let usdTotal = 0;
-        
-        // Calculate JMD total
-        jmdTotal += (parseInt(document.getElementById('id_jmd_5000').value || 0) * 5000);
-        jmdTotal += (parseInt(document.getElementById('id_jmd_2000').value || 0) * 2000);
-        jmdTotal += (parseInt(document.getElementById('id_jmd_1000').value || 0) * 1000);
-        jmdTotal += (parseInt(document.getElementById('id_jmd_500').value || 0) * 500);
-        jmdTotal += (parseInt(document.getElementById('id_jmd_100').value || 0) * 100);
-        jmdTotal += (parseInt(document.getElementById('id_jmd_50').value || 0) * 50);
-        
-        // Calculate USD total
-        usdTotal += (parseInt(document.getElementById('id_usd_100').value || 0) * 100);
-        usdTotal += (parseInt(document.getElementById('id_usd_50').value || 0) * 50);
-        usdTotal += (parseInt(document.getElementById('id_usd_20').value || 0) * 20);
-        usdTotal += (parseInt(document.getElementById('id_usd_10').value || 0) * 10);
-        usdTotal += (parseInt(document.getElementById('id_usd_1').value || 0) * 1);
-        
-        // Update summary
-        summaryDiv.innerHTML = `
-            <h5 class="mb-3">Total Request:</h5>
-            <table class="table table-borderless">
-                <tr>
-                    <td><strong>JMD Total:</strong></td>
-                    <td class="text-end">$${jmdTotal.toLocaleString()}</td>
-                </tr>
-                <tr>
-                    <td><strong>USD Total:</strong></td>
-                    <td class="text-end">$${usdTotal.toLocaleString()}</td>
-                </tr>
-            </table>
-            <div class="alert alert-primary mt-3">
-                <i class="fas fa-info-circle me-2"></i> Your request will be reviewed by head office before approval.
-            </div>
-        `;
+    // Add submit handler to update hidden fields before submission
+    form.addEventListener('submit', function(e) {
+        // Ensure hidden fields are updated with latest totals
+        updateTotals();
+    });
+    
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+        }).format(amount);
     }
     
-    // Add event listeners to all inputs
-    denomInputs.forEach(input => {
-        input.addEventListener('input', updateSummary);
+    function updateTotals() {
+        let totalJMD = 0;
+        let totalUSD = 0;
+        const jmdBreakdown = [];
+        const usdBreakdown = [];
+        
+        denominationInputs.forEach(input => {
+            const value = parseFloat(input.value) || 0;
+            if (value === 0) return; // Skip if no amount entered
+            
+            const denomination = parseInt(input.step);
+            const noteCount = Math.floor(value / denomination);
+            
+            // Update note count display
+            const noteCountDiv = input.nextElementSibling;
+            if (value > 0) {
+                noteCountDiv.textContent = `(${noteCount} notes)`;
+            } else {
+                noteCountDiv.textContent = '';
+            }
+            
+            // Add to appropriate total and breakdown
+            if (input.id.includes('jmd')) {
+                totalJMD += value;
+                if (value > 0) {
+                    jmdBreakdown.push(`${formatCurrency(value)} in $${denomination} notes`);
+                }
+            } else {
+                totalUSD += value;
+                if (value > 0) {
+                    usdBreakdown.push(`${formatCurrency(value)} in $${denomination} notes`);
+                }
+            }
+        });
+        
+        // Update totals display
+        document.getElementById('total-jmd').textContent = formatCurrency(totalJMD);
+        document.getElementById('total-usd').textContent = formatCurrency(totalUSD);
+        document.getElementById('summary-total-jmd').textContent = formatCurrency(totalJMD);
+        document.getElementById('summary-total-usd').textContent = formatCurrency(totalUSD);
+        
+        // Update hidden fields for form submission
+        totalJmdHidden.value = totalJMD;
+        totalUsdHidden.value = totalUSD;
+        
+        // Update breakdowns
+        const jmdBreakdownList = document.getElementById('jmd-breakdown');
+        const usdBreakdownList = document.getElementById('usd-breakdown');
+        
+        jmdBreakdownList.innerHTML = jmdBreakdown.length ? 
+            jmdBreakdown.map(item => `<li>${item}</li>`).join('') :
+            '<li class="text-muted">No JMD denominations requested</li>';
+            
+        usdBreakdownList.innerHTML = usdBreakdown.length ?
+            usdBreakdown.map(item => `<li>${item}</li>`).join('') :
+            '<li class="text-muted">No USD denominations requested</li>';
+    }
+    
+    // Add event listeners to all denomination inputs
+    denominationInputs.forEach(input => {
+        input.addEventListener('input', updateTotals);
     });
     
     // Initial update
-    updateSummary();
+    updateTotals();
 });
 </script>
 {% endblock %} 

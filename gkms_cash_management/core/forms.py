@@ -6,28 +6,170 @@ from django.utils import timezone
 from datetime import timedelta
 
 class CashRequestForm(forms.ModelForm):
+    # JMD Denomination Values
+    jmd_5000_value = forms.DecimalField(
+        label='$5,000 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '5000'})
+    )
+    jmd_2000_value = forms.DecimalField(
+        label='$2,000 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '2000'})
+    )
+    jmd_1000_value = forms.DecimalField(
+        label='$1,000 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '1000'})
+    )
+    jmd_500_value = forms.DecimalField(
+        label='$500 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '500'})
+    )
+    jmd_100_value = forms.DecimalField(
+        label='$100 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '100'})
+    )
+    jmd_50_value = forms.DecimalField(
+        label='$50 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '50'})
+    )
+
+    # USD Denomination Values
+    usd_100_value = forms.DecimalField(
+        label='$100 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '100'})
+    )
+    usd_50_value = forms.DecimalField(
+        label='$50 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '50'})
+    )
+    usd_20_value = forms.DecimalField(
+        label='$20 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '20'})
+    )
+    usd_10_value = forms.DecimalField(
+        label='$10 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '10'})
+    )
+    usd_1_value = forms.DecimalField(
+        label='$1 Notes Value',
+        max_digits=15,
+        decimal_places=2,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control denomination-input', 'min': '0', 'step': '1'})
+    )
+
+    # Total fields for form submission
+    total_jmd = forms.DecimalField(required=False)
+    total_usd = forms.DecimalField(required=False)
+    
+    # Make the original fields optional since we're using the value fields instead
+    jmd_5000 = forms.IntegerField(required=False, initial=0)
+    jmd_2000 = forms.IntegerField(required=False, initial=0)
+    jmd_1000 = forms.IntegerField(required=False, initial=0)
+    jmd_500 = forms.IntegerField(required=False, initial=0)
+    jmd_100 = forms.IntegerField(required=False, initial=0)
+    jmd_50 = forms.IntegerField(required=False, initial=0)
+    usd_100 = forms.IntegerField(required=False, initial=0)
+    usd_50 = forms.IntegerField(required=False, initial=0)
+    usd_20 = forms.IntegerField(required=False, initial=0)
+    usd_10 = forms.IntegerField(required=False, initial=0)
+    usd_1 = forms.IntegerField(required=False, initial=0)
+
     class Meta:
         model = CashRequest
         fields = [
             'delivery_date', 'request_type',
             'jmd_5000', 'jmd_2000', 'jmd_1000', 'jmd_500', 'jmd_100', 'jmd_50',
-            'usd_100', 'usd_50', 'usd_20', 'usd_10', 'usd_1'
+            'usd_100', 'usd_50', 'usd_20', 'usd_10', 'usd_1',
+            'total_jmd', 'total_usd'
         ]
         widgets = {
             'delivery_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'request_type': forms.Select(attrs={'class': 'form-control'}),
-            'jmd_5000': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'jmd_2000': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'jmd_1000': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'jmd_500': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'jmd_100': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'jmd_50': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'usd_100': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'usd_50': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'usd_20': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'usd_10': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'usd_1': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Convert denomination values to note counts
+        denominations = {
+            'jmd_5000': 5000,
+            'jmd_2000': 2000,
+            'jmd_1000': 1000,
+            'jmd_500': 500,
+            'jmd_100': 100,
+            'jmd_50': 50,
+            'usd_100': 100,
+            'usd_50': 50,
+            'usd_20': 20,
+            'usd_10': 10,
+            'usd_1': 1
+        }
+
+        # Get totals from form data if available
+        total_jmd = float(cleaned_data.get('total_jmd') or 0)
+        total_usd = float(cleaned_data.get('total_usd') or 0)
+
+        # For each denomination, calculate the note count
+        for field, value in denominations.items():
+            value_field = f"{field}_value"
+            amount = float(cleaned_data.get(value_field) or 0)
+            
+            if amount > 0 and amount % value != 0:
+                self.add_error(value_field, f"Value must be a multiple of ${value}")
+            else:
+                note_count = int(amount / value) if amount > 0 else 0
+                cleaned_data[field] = note_count
+
+        # Add calculated totals to cleaned data
+        cleaned_data['total_jmd'] = total_jmd
+        cleaned_data['total_usd'] = total_usd
+
+        # Form is only valid if at least one denomination is specified
+        if total_jmd == 0 and total_usd == 0:
+            self.add_error(None, "Please specify at least one denomination")
+
+        return cleaned_data
 
 class CashVerificationForm(forms.ModelForm):
     confirmed = forms.BooleanField(
