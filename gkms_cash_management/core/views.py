@@ -6,9 +6,9 @@ from django.db.models import Q, Sum, Avg
 from django.http import HttpResponse, JsonResponse
 from .models import (
     AgentProfile, Location, LocationLimit, CashDelivery, 
-    CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance, EmergencyAccessRequest, SystemSettings
+    CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance, EmergencyAccessRequest, SystemSettings, EFTData
 )
-from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm, EmergencyAccessRequestForm, LocationUpdateForm
+from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm, EmergencyAccessRequestForm, LocationUpdateForm, UploadEFTStatementForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 import logging
@@ -19,8 +19,9 @@ import json
 from django.contrib.auth.views import LoginView
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import pytz
+import openpyxl # For reading Excel files
 
 logger = logging.getLogger(__name__)
 
@@ -1518,6 +1519,7 @@ def manage_locations(request):
 def location_detail(request, location_id):
     """View for displaying and editing the details of a specific location."""
     location = get_object_or_404(Location, pk=location_id)
+    latest_eft_data = EFTData.objects.filter(location=location).order_by('-statement_date', '-uploaded_at').first()
     
     if request.method == 'POST':
         form = LocationUpdateForm(request.POST, instance=location)
@@ -1529,9 +1531,155 @@ def location_detail(request, location_id):
             messages.error(request, "Failed to update location. Please check the form for errors.")
     else:
         form = LocationUpdateForm(instance=location)
-        
+    
     context = {
         'location': location,
         'form': form,
+        'latest_eft_data': latest_eft_data,
+        'title': f'{location.name} Details',
+        'icon': 'fas fa-building',
     }
     return render(request, 'core/location_detail_page.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def upload_eft_statement(request):
+    if request.method == 'POST':
+        form = UploadEFTStatementForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = request.FILES['eft_file']
+            try:
+                workbook = openpyxl.load_workbook(excel_file)
+                sheet = workbook.active  # Get the first sheet
+
+                header = [cell.value for cell in sheet[1]]
+                expected_headers = [
+                    "Location", "Date", "Balance B/F", "Inbound", "Intra-Sent", 
+                    "Outbound", "Loan", "Rec\'d Fr. GK", "Adjusted", "BX", "SC", 
+                    "FX", "Due To GK", "Due From GK"
+                ]
+                
+                # Basic header validation (can be made more robust)
+                if header[:len(expected_headers)] != expected_headers:
+                    messages.error(request, f"Invalid Excel header. Expected: {', '.join(expected_headers)}")
+                    return redirect('upload_eft_statement')
+
+                locations_processed = 0
+                rows_processed = 0
+                errors_found = 0
+
+                # Start from the second row (index 2) to skip header
+                for row_idx, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
+                    if not any(row): # Skip empty rows
+                        continue
+                    
+                    rows_processed += 1
+                    try:
+                        eft_location_name = str(row[0]).strip() if row[0] else None
+                        statement_date_raw = row[1]
+                        
+                        if not eft_location_name or not statement_date_raw:
+                            messages.warning(request, f"Row {row_idx}: Missing Location Name or Date. Skipping.")
+                            errors_found +=1
+                            continue
+
+                        # Try to parse date (handles datetime objects from openpyxl or string dates)
+                        if isinstance(statement_date_raw, datetime):
+                            statement_date = statement_date_raw.date()
+                        else:
+                            try:
+                                # Attempt common date formats; adjust as needed
+                                statement_date = datetime.strptime(str(statement_date_raw).split(' ')[0], '%Y-%m-%d').date()
+                            except ValueError:
+                                try:
+                                    statement_date = datetime.strptime(str(statement_date_raw).split(' ')[0], '%m/%d/%Y').date()
+                                except ValueError:
+                                    messages.warning(request, f"Row {row_idx}: Invalid date format for '{statement_date_raw}'. Use YYYY-MM-DD or MM/DD/YYYY. Skipping.")
+                                    errors_found +=1
+                                    continue
+                        
+                        try:
+                            location_obj = Location.objects.get(eft_system_name__iexact=eft_location_name)
+                        except Location.DoesNotExist:
+                            messages.warning(request, f"Row {row_idx}: Location with EFT name '{eft_location_name}' not found. Skipping.")
+                            errors_found +=1
+                            continue
+                        except Location.MultipleObjectsReturned:
+                            messages.error(request, f"Row {row_idx}: Multiple locations found with EFT name '{eft_location_name}'. Please ensure EFT names are unique. Skipping.")
+                            errors_found +=1
+                            continue
+
+                        # Helper to convert to decimal, defaulting to 0.00 if None or empty
+                        def to_decimal(value):
+                            if value is None or str(value).strip() == "":
+                                return Decimal('0.00')
+                            try:
+                                return Decimal(str(value))
+                            except InvalidOperation:
+                                raise ValueError(f"Invalid decimal value: {value}")
+
+                        try:
+                            eft_data_values = {
+                                'balance_bf': to_decimal(row[2]),
+                                'inbound': to_decimal(row[3]),
+                                'intra_sent': to_decimal(row[4]),
+                                'outbound': to_decimal(row[5]),
+                                'loan': to_decimal(row[6]),
+                                'received_from_gk': to_decimal(row[7]),
+                                'adjusted': to_decimal(row[8]),
+                                'bx': to_decimal(row[9]),
+                                'sc': to_decimal(row[10]),
+                                'fx': to_decimal(row[11]),
+                                'due_to_gk': to_decimal(row[12]),
+                                'due_from_gk': to_decimal(row[13]),
+                            }
+                        except ValueError as ve:
+                            messages.warning(request, f"Row {row_idx} for location '{eft_location_name}': Invalid numeric data ({ve}). Skipping.")
+                            errors_found +=1
+                            continue
+
+
+                        eft_entry, created = EFTData.objects.update_or_create(
+                            location=location_obj,
+                            statement_date=statement_date,
+                            defaults=eft_data_values
+                        )
+                        
+                        if created:
+                            locations_processed += 1
+                        else:
+                            # If updated, still count as processed
+                            locations_processed += 1 
+                            messages.info(request, f"Row {row_idx}: Updated EFT data for {location_obj.name} on {statement_date}.")
+
+
+                    except Exception as e:
+                        messages.error(request, f"Error processing row {row_idx}: {str(e)}. Skipping.")
+                        errors_found += 1
+                        continue
+                
+                if locations_processed > 0:
+                    messages.success(request, f"Successfully processed {locations_processed} EFT data entries from {rows_processed} rows.")
+                if errors_found > 0:
+                    messages.warning(request, f"Encountered {errors_found} issues during import. Please review messages.")
+                if locations_processed == 0 and errors_found == 0 and rows_processed > 0:
+                     messages.info(request, "File processed, but no new or updated EFT data entries were made. Locations might not exist or data might be identical.")
+                elif rows_processed == 0:
+                    messages.info(request, "The uploaded file appears to be empty or has no data rows after the header.")
+
+
+            except openpyxl.utils.exceptions.InvalidFileException:
+                messages.error(request, "Invalid file format. Please upload a valid Excel file (.xlsx or .xls).")
+            except Exception as e:
+                messages.error(request, f"An unexpected error occurred: {str(e)}")
+            
+            return redirect('upload_eft_statement')
+    else:
+        form = UploadEFTStatementForm()
+    
+    context = {
+        'form': form,
+        'title': 'Upload EFT Statement',
+        'icon': 'fas fa-file-excel',
+    }
+    return render(request, 'core/upload_file_form.html', context)

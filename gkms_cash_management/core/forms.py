@@ -444,4 +444,13 @@ class LocationUpdateForm(forms.ModelForm):
             'eft_system_name': forms.TextInput(attrs={'class': 'form-control'}),
             'remote_services_name': forms.TextInput(attrs={'class': 'form-control'}),
             'insurance_limit_name': forms.TextInput(attrs={'class': 'form-control'}),
-        } 
+        }
+
+class UploadEFTStatementForm(forms.Form):
+    eft_file = forms.FileField(
+        label='Select EFT Statement Excel File',
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control',
+            'accept': '.xlsx, .xls'
+        })
+    ) 

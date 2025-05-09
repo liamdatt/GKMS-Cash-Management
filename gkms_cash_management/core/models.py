@@ -332,6 +332,32 @@ class SystemSettings(models.Model):
         settings, created = cls.objects.get_or_create(pk=1)
         return settings
 
+class EFTData(models.Model):
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='eft_data')
+    statement_date = models.DateField()
+    balance_bf = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="Balance Brought Forward")
+    inbound = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    intra_sent = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="Intra-Sent")
+    outbound = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    loan = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    received_from_gk = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="Received From GK")
+    adjusted = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    bx = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="BX")
+    sc = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="SC")
+    fx = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="FX")
+    due_to_gk = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="Due To GK")
+    due_from_gk = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="Due From GK")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "EFT Data"
+        verbose_name_plural = "EFT Data Entries"
+        ordering = ['-statement_date', '-uploaded_at']
+        unique_together = ['location', 'statement_date'] # Assuming one statement per location per day
+
+    def __str__(self):
+        return f"EFT Data for {self.location.name} - {self.statement_date}"
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 

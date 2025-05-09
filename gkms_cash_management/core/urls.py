@@ -34,6 +34,7 @@ urlpatterns = [
     path('system-admin/settings/', views.manage_system_settings, name='manage_system_settings'),
     path('system-admin/locations/', views.manage_locations, name='manage_locations'),
     path('system-admin/location/<int:location_id>/', views.location_detail, name='location_detail'),
+    path('system-admin/upload-eft-statement/', views.upload_eft_statement, name='upload_eft_statement'),
     path('debug-profiles/', views.debug_profiles, name='debug_profiles'),
     path('user-profile-debug/<int:user_id>/', views.user_profile_debug, name='user_profile_debug'),
     path('assign-location/', views.assign_location, name='assign_location_no_id'),
