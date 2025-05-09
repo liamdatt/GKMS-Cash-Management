@@ -8,7 +8,7 @@ from .models import (
     AgentProfile, Location, LocationLimit, CashDelivery, 
     CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance, EmergencyAccessRequest, SystemSettings
 )
-from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm, EmergencyAccessRequestForm
+from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm, EmergencyAccessRequestForm, LocationUpdateForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 import logging
@@ -1480,3 +1480,58 @@ def manage_system_settings(request):
     }
     
     return render(request, 'core/manage_system_settings.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def manage_locations(request):
+    """View for listing and searching locations."""
+    search_query = request.GET.get('q', '')
+    locations_list = Location.objects.all().order_by('name')
+
+    if search_query:
+        locations_list = locations_list.filter(
+            Q(name__icontains=search_query) |
+            Q(address__icontains=search_query) |
+            Q(eft_system_name__icontains=search_query) |
+            Q(remote_services_name__icontains=search_query) |
+            Q(insurance_limit_name__icontains=search_query)
+        )
+
+    paginator = Paginator(locations_list, 25)  # Show 25 locations per page
+    page_number = request.GET.get('page')
+    try:
+        locations = paginator.page(page_number)
+    except PageNotAnInteger:
+        locations = paginator.page(1)
+    except EmptyPage:
+        locations = paginator.page(paginator.num_pages)
+
+    context = {
+        'locations': locations,
+        'search_query': search_query,
+        'total_locations': paginator.count,
+    }
+    return render(request, 'core/manage_locations.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def location_detail(request, location_id):
+    """View for displaying and editing the details of a specific location."""
+    location = get_object_or_404(Location, pk=location_id)
+    
+    if request.method == 'POST':
+        form = LocationUpdateForm(request.POST, instance=location)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Successfully updated location: {location.name}")
+            return redirect('location_detail', location_id=location.id)
+        else:
+            messages.error(request, "Failed to update location. Please check the form for errors.")
+    else:
+        form = LocationUpdateForm(instance=location)
+        
+    context = {
+        'location': location,
+        'form': form,
+    }
+    return render(request, 'core/location_detail_page.html', context)

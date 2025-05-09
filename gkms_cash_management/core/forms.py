@@ -1,5 +1,5 @@
 from django import forms
-from .models import CashRequest, EODReport, CashDelivery, TellerBalance, Adjustment, EmergencyAccessRequest
+from .models import CashRequest, EODReport, CashDelivery, TellerBalance, Adjustment, EmergencyAccessRequest, Location
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -422,7 +422,7 @@ class SignupForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs.update({'class': 'form-control'})
-        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control'}) 
 
 class EmergencyAccessRequestForm(forms.ModelForm):
     reason = forms.CharField(
@@ -433,3 +433,15 @@ class EmergencyAccessRequestForm(forms.ModelForm):
     class Meta:
         model = EmergencyAccessRequest
         fields = ['reason'] 
+
+class LocationUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Location
+        fields = ['name', 'address', 'eft_system_name', 'remote_services_name', 'insurance_limit_name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'eft_system_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'remote_services_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'insurance_limit_name': forms.TextInput(attrs={'class': 'form-control'}),
+        } 

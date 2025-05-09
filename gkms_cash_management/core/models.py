@@ -16,6 +16,9 @@ def tomorrow():
 class Location(models.Model):
     name = models.CharField(max_length=255)
     address = models.TextField(blank=True, default='')
+    eft_system_name = models.CharField(max_length=255, blank=True, default='', help_text="Name of the location in the EFT system")
+    remote_services_name = models.CharField(max_length=255, blank=True, default='', help_text="Name of the location in Remote Services")
+    insurance_limit_name = models.CharField(max_length=255, blank=True, default='', help_text="Name used for Insurance Limit purposes")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
