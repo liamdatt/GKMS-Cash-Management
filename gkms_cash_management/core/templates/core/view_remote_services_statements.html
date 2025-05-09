@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 px-0">
+    <div class="page-header text-center mb-4">
+        <h1><i class="{{ icon }} me-2"></i>{{ title }}</h1>
+    </div>
+
+    {% if remote_services_entries %}
+    <div class="table-container">
+        <table class="table table-striped table-hover table-sm table-bordered" id="remoteServicesTable">
+            <thead class="table-primary">
+                <tr>
+                    <th>Location Name</th>
+                    <th>Statement Date</th>
+                    <th>Parish Name</th>
+                    <th class="text-center">Parish ID</th>
+                    <th>Currency</th>
+                    <th class="text-end">Pay Principal</th>
+                    <th class="text-end">Send Principal</th>
+                    <th class="text-end">Total Principal</th>
+                    <th class="text-center">Pay Count</th>
+                    <th class="text-center">Send Count</th>
+                    <th class="text-center">Total Num Trans</th>
+                    <th class="text-end">Total Payout (for Loc on Stmt Date)</th>
+                    <th>Uploaded At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in remote_services_entries %}
+                <tr id="rs-row-{{ entry.id }}">
+                    <td>{{ entry.location.name }}</td>
+                    <td>{{ entry.statement_date|date:"Y-m-d" }}</td>
+                    <td>{{ entry.parish_name }}</td>
+                    <td class="text-center">{{ entry.parish_id|default_if_none:"" }}</td>
+                    <td>{{ entry.currency }}</td>
+                    <td class="text-end">{{ entry.pay_principal|floatformat:2 }}</td>
+                    <td class="text-end">{{ entry.send_principal|floatformat:2 }}</td>
+                    <td class="text-end">{{ entry.total_principal|floatformat:2 }}</td>
+                    <td class="text-center">{{ entry.pay_count }}</td>
+                    <td class="text-center">{{ entry.send_count }}</td>
+                    <td class="text-center">{{ entry.total_num_trans }}</td>
+                    <td class="text-end fw-bold">{{ entry.total_payout_for_location_in_upload|floatformat:2 }}</td>
+                    <td>{{ entry.uploaded_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "core/partials/_pagination.html" with page_obj=remote_services_entries %}
+
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            No Remote Services statements found.
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-4 mb-4">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Admin Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %} 

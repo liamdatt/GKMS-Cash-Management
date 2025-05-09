@@ -18,6 +18,13 @@ urlpatterns = [
     path('location/<int:location_id>/', views.location_details, name='location_details'),
     path('approve-cash-request/<int:request_id>/', views.approve_cash_request, name='approve_cash_request'),
     path('generate-report/', views.generate_report, name='generate_report'),
+    path('system-admin/upload-eft-statement/', views.upload_eft_statement, name='upload_eft_statement'),
+    path('system-admin/view-eft-statements/', views.view_eft_statements, name='view_eft_statements'),
+    path('system-admin/edit-eft-entry/<int:entry_id>/', views.edit_eft_statement_entry, name='edit_eft_statement_entry'),
+    path('system-admin/upload-remote-services-statement/', views.upload_remote_services_statement, name='upload_remote_services_statement'),
+    path('system-admin/view-remote-services-statements/', views.view_remote_services_statements, name='view_remote_services_statements'),
+    path('system-admin/select-upload-type/', views.select_upload_type, name='select_upload_type'),
+    path('system-admin/select-view-type/', views.select_view_type, name='select_view_type'),
     
     # Authentication URLs
     path('signup/', views.signup, name='signup'),

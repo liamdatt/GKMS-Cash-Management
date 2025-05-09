@@ -372,13 +372,33 @@ def create_agent_profile(sender, instance, created, **kwargs):
 # Patch the User model with additional properties
 def get_location_name(self):
     try:
-        if hasattr(self, 'agentprofile') and self.agentprofile:
-            return self.agentprofile.location.name
-        profile = AgentProfile.objects.filter(user=self).first()
-        if profile:
-            return profile.location.name
-        return "Not assigned"
-    except Exception:
-        return "Not assigned"
+        return self.agentprofile.location.name
+    except AgentProfile.DoesNotExist:
+        return "N/A"
 
-User.add_to_class('get_location_name', get_location_name)
+User.add_to_class("get_location_name", get_location_name)
+
+class RemoteServicesData(models.Model):
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='remote_services_data')
+    statement_date = models.DateField(help_text="Statement date for the uploaded sheet")
+    parish_name = models.CharField(max_length=255, blank=True)
+    parish_id = models.IntegerField(null=True, blank=True)
+    currency = models.CharField(max_length=10, blank=True)
+    pay_principal = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    send_principal = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    total_principal = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    # Column H is skipped as it's empty
+    pay_count = models.IntegerField(default=0)
+    send_count = models.IntegerField(default=0)
+    total_num_trans = models.IntegerField(default=0)
+    total_payout_for_location_in_upload = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, help_text="Sum of Pay Principal for this location in this specific upload/statement date.")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Remote Services Data"
+        verbose_name_plural = "Remote Services Data Entries"
+        ordering = ['-statement_date', 'location__name', '-uploaded_at']
+        # unique_together = ['location', 'statement_date', 'currency'] # Consider if a combination should be unique per row from Excel
+
+    def __str__(self):
+        return f"Remote Services for {self.location.name} - {self.statement_date} ({self.currency})"

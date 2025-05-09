@@ -1,0 +1,167 @@
+{% extends 'core/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 px-0">
+    <div class="page-header text-center mb-4">
+        <h1><i class="{{ icon }} me-2"></i>{{ title }}</h1>
+    </div>
+
+    {% if eft_statements %}
+    <div class="table-container">
+        <table class="table table-striped table-hover table-bordered" id="eftTable">
+            <thead class="table-primary">
+                <tr>
+                    <th>Location</th>
+                    <th>Statement Date</th>
+                    <th class="text-end">Balance B/F</th>
+                    <th class="text-end">Inbound</th>
+                    <th class="text-end">Intra-Sent</th>
+                    <th class="text-end">Outbound</th>
+                    <th class="text-end">Loan</th>
+                    <th class="text-end">Rec'd Fr. GK</th>
+                    <th class="text-end">Adjusted</th>
+                    <th class="text-end">BX</th>
+                    <th class="text-end">SC</th>
+                    <th class="text-end">FX</th>
+                    <th class="text-end">Due To GK</th>
+                    <th class="text-end">Due From GK</th>
+                    <th>Uploaded At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stmt in eft_statements %}
+                <tr id="eft-row-{{ stmt.id }}">
+                    <td data-field="location_name">{{ stmt.location.name }}</td>
+                    <td data-field="statement_date">{{ stmt.statement_date|date:"Y-m-d" }}</td>
+                    <td data-field="balance_bf" class="text-end">{{ stmt.balance_bf|floatformat:2 }}</td>
+                    <td data-field="inbound" class="text-end">{{ stmt.inbound|floatformat:2 }}</td>
+                    <td data-field="intra_sent" class="text-end">{{ stmt.intra_sent|floatformat:2 }}</td>
+                    <td data-field="outbound" class="text-end">{{ stmt.outbound|floatformat:2 }}</td>
+                    <td data-field="loan" class="text-end">{{ stmt.loan|floatformat:2 }}</td>
+                    <td data-field="received_from_gk" class="text-end">{{ stmt.received_from_gk|floatformat:2 }}</td>
+                    <td data-field="adjusted" class="text-end">{{ stmt.adjusted|floatformat:2 }}</td>
+                    <td data-field="bx" class="text-end">{{ stmt.bx|floatformat:2 }}</td>
+                    <td data-field="sc" class="text-end">{{ stmt.sc|floatformat:2 }}</td>
+                    <td data-field="fx" class="text-end">{{ stmt.fx|floatformat:2 }}</td>
+                    <td data-field="due_to_gk" class="text-end">{{ stmt.due_to_gk|floatformat:2 }}</td>
+                    <td data-field="due_from_gk" class="text-end">{{ stmt.due_from_gk|floatformat:2 }}</td>
+                    <td data-field="uploaded_at">{{ stmt.uploaded_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary edit-eft-btn"
+                                data-entry-id="{{ stmt.id }}"
+                                data-bs-toggle="modal" data-bs-target="#editEftModal">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "core/partials/_pagination.html" with page_obj=eft_statements %}
+
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            No EFT statements found.
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-4 mb-4">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Admin Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Edit EFT Modal -->
+<div class="modal fade" id="editEftModal" tabindex="-1" aria-labelledby="editEftModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEftModalLabel">Edit EFT Statement Entry</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="editEftModalBody">
+                <!-- Form will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Handle click on edit button
+    $('.edit-eft-btn').on('click', function() {
+        var entryId = $(this).data('entry-id');
+        var modalBody = $('#editEftModalBody');
+        
+        // Clear previous form and show loading state
+        modalBody.html('<div class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        
+        // Fetch the edit form via AJAX
+        $.ajax({
+            url: `/system-admin/edit-eft-entry/${entryId}/`,
+            method: 'GET',
+            success: function(response) {
+                modalBody.html(response);
+                // Initialize any JS needed for the form here if necessary
+            },
+            error: function(xhr) {
+                modalBody.html('<div class="alert alert-danger">Error loading form: ' + xhr.statusText + '</div>');
+            }
+        });
+    });
+
+    // Handle form submission from within the modal via AJAX
+    $(document).on('submit', '#editEftForm', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        var form = $(this);
+        var entryId = form.data('entry-id'); 
+        var modalBody = $('#editEftModalBody');
+
+        $.ajax({
+            url: form.attr('action'), // URL from form's action attribute
+            method: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                if (response.success) {
+                    $('#editEftModal').modal('hide');
+                    // Update the table row dynamically
+                    var updatedRow = $('#eft-row-' + entryId);
+                    if (updatedRow.length) {
+                        $.each(response.updated_data, function(key, value) {
+                            var cell = updatedRow.find('td[data-field="' + key + '"]');
+                            if (cell.length) {
+                                if (key.includes('date') || key.includes('_at')) { // Basic date formatting
+                                    cell.text(new Date(value).toISOString().split('T')[0]);
+                                } else if (typeof value === 'number') {
+                                     cell.text(parseFloat(value).toFixed(2));
+                                } else {
+                                    cell.text(value);
+                                }
+                            }
+                        });
+                    }
+                    // Show a success message (e.g., using Bootstrap toasts or a simple alert)
+                    alert('EFT entry updated successfully!'); 
+                } else {
+                    // Display errors in the modal
+                    modalBody.html(response.form_html); // Assuming server sends back form with errors
+                }
+            },
+            error: function(xhr) {
+                alert('Error updating EFT entry: ' + xhr.statusText);
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

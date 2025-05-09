@@ -1,5 +1,5 @@
 from django import forms
-from .models import CashRequest, EODReport, CashDelivery, TellerBalance, Adjustment, EmergencyAccessRequest, Location
+from .models import CashRequest, EODReport, CashDelivery, TellerBalance, Adjustment, EmergencyAccessRequest, Location, EFTData
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -452,5 +452,53 @@ class UploadEFTStatementForm(forms.Form):
         widget=forms.ClearableFileInput(attrs={
             'class': 'form-control',
             'accept': '.xlsx, .xls'
+        })
+    )
+
+class EFTDataEditForm(forms.ModelForm):
+    class Meta:
+        model = EFTData
+        fields = [
+            'location', 'statement_date', 'balance_bf', 'inbound', 'intra_sent',
+            'outbound', 'loan', 'received_from_gk', 'adjusted', 'bx', 'sc',
+            'fx', 'due_to_gk', 'due_from_gk'
+        ]
+        widgets = {
+            'statement_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            # Add widgets for other fields if needed for styling or input type
+            'balance_bf': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'inbound': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'intra_sent': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'outbound': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'loan': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'received_from_gk': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'adjusted': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'bx': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'sc': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'fx': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'due_to_gk': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'due_from_gk': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'location': forms.Select(attrs={'class': 'form-control', 'disabled': 'disabled'}), # Location might not be editable here
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            # If editing an existing instance, make location and statement_date read-only
+            # or disable them, as they are part of the unique identifier.
+            self.fields['location'].disabled = True
+            self.fields['statement_date'].disabled = True 
+
+class UploadRemoteServicesStatementForm(forms.Form):
+    statement_date = forms.DateField(
+        label='Statement Date for this Upload',
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        initial=timezone.now().date() # Default to today, user can change
+    )
+    remote_services_file = forms.FileField(
+        label='Select Remote Services Excel File',
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control',
+            'accept': '.xlsx, .xls' 
         })
     ) 

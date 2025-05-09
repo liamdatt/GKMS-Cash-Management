@@ -6,9 +6,9 @@ from django.db.models import Q, Sum, Avg
 from django.http import HttpResponse, JsonResponse
 from .models import (
     AgentProfile, Location, LocationLimit, CashDelivery, 
-    CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance, EmergencyAccessRequest, SystemSettings, EFTData
+    CashRequest, EODReport, TellerBalance, Adjustment, DailyAgentData, DenominationBreakdown, TellerVariance, EmergencyAccessRequest, SystemSettings, EFTData, RemoteServicesData
 )
-from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm, EmergencyAccessRequestForm, LocationUpdateForm, UploadEFTStatementForm
+from .forms import CashRequestForm, EODReportForm, CashVerificationForm, SignupForm, EmergencyAccessRequestForm, LocationUpdateForm, UploadEFTStatementForm, EFTDataEditForm, UploadRemoteServicesStatementForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 import logging
@@ -22,6 +22,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from decimal import Decimal, InvalidOperation
 import pytz
 import openpyxl # For reading Excel files
+from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
 
@@ -1521,6 +1522,23 @@ def location_detail(request, location_id):
     location = get_object_or_404(Location, pk=location_id)
     latest_eft_data = EFTData.objects.filter(location=location).order_by('-statement_date', '-uploaded_at').first()
     
+    # Fetch Remote Services Data
+    latest_remote_services_date_entry = RemoteServicesData.objects.filter(location=location).order_by('-statement_date').first()
+    latest_remote_services_data_list = []
+    total_payout_for_latest_remote_upload = Decimal('0.00')
+
+    if latest_remote_services_date_entry:
+        latest_date = latest_remote_services_date_entry.statement_date
+        latest_remote_services_data_list = RemoteServicesData.objects.filter(
+            location=location,
+            statement_date=latest_date
+        ).order_by('currency', 'id') # Order by currency then by ID or another field for consistency
+        
+        # The total_payout_for_location_in_upload should be the same for all these entries,
+        # as it was calculated at the time of upload for that location and statement_date batch.
+        if latest_remote_services_data_list:
+            total_payout_for_latest_remote_upload = latest_remote_services_data_list[0].total_payout_for_location_in_upload
+
     if request.method == 'POST':
         form = LocationUpdateForm(request.POST, instance=location)
         if form.is_valid():
@@ -1536,6 +1554,9 @@ def location_detail(request, location_id):
         'location': location,
         'form': form,
         'latest_eft_data': latest_eft_data,
+        'latest_remote_services_data_list': latest_remote_services_data_list,
+        'latest_remote_services_statement_date': latest_remote_services_date_entry.statement_date if latest_remote_services_date_entry else None,
+        'total_payout_for_latest_remote_upload': total_payout_for_latest_remote_upload,
         'title': f'{location.name} Details',
         'icon': 'fas fa-building',
     }
@@ -1683,3 +1704,245 @@ def upload_eft_statement(request):
         'icon': 'fas fa-file-excel',
     }
     return render(request, 'core/upload_file_form.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def view_eft_statements(request):
+    """View to display all imported EFT statements."""
+    eft_statements = EFTData.objects.select_related('location').order_by('location__name', '-statement_date')
+    
+    # Pagination (optional, but good for many entries)
+    paginator = Paginator(eft_statements, 50)  # Show 50 entries per page
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+        
+    context = {
+        'eft_statements': page_obj,
+        'title': 'View All EFT Statements',
+        'icon': 'fas fa-list-alt',
+    }
+    return render(request, 'core/view_eft_statements.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def edit_eft_statement_entry(request, entry_id):
+    entry = get_object_or_404(EFTData, pk=entry_id)
+    if request.method == 'POST':
+        form = EFTDataEditForm(request.POST, instance=entry)
+        if form.is_valid():
+            form.save()
+            # Prepare data for the AJAX response to update the row
+            updated_data = {
+                f.name: getattr(entry, f.name) 
+                for f in EFTData._meta.get_fields() 
+                if not f.is_relation or f.one_to_one or (f.many_to_one and f.related_model)
+            }
+            # Format dates and decimals for display
+            for key, value in updated_data.items():
+                if isinstance(value, datetime):
+                    updated_data[key] = value.strftime('%Y-%m-%d %H:%M:%S') # Or just %Y-%m-%d for dates
+                elif isinstance(value, date):
+                     updated_data[key] = value.strftime('%Y-%m-%d')
+                elif isinstance(value, Decimal):
+                    updated_data[key] = float(value) # JS will format with toFixed(2)
+                elif isinstance(value, Location): # Handle ForeignKey for location
+                    updated_data['location_name'] = value.name # Send location name
+                    del updated_data['location'] # Remove the location object itself
+
+            return JsonResponse({'success': True, 'updated_data': updated_data})
+        else:
+            # If form is invalid, re-render the form snippet with errors
+            form_html = render_to_string('core/partials/_edit_eft_entry_form.html', {'form': form, 'entry_id': entry_id}, request=request)
+            return JsonResponse({'success': False, 'form_html': form_html}, status=400)
+    else:
+        form = EFTDataEditForm(instance=entry)
+    
+    # For GET request, render the form snippet to be loaded into the modal
+    return render(request, 'core/partials/_edit_eft_entry_form.html', {'form': form, 'entry_id': entry_id})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def upload_remote_services_statement(request):
+    if request.method == 'POST':
+        form = UploadRemoteServicesStatementForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = request.FILES['remote_services_file']
+            sheet_statement_date = form.cleaned_data['statement_date']
+            
+            try:
+                workbook = openpyxl.load_workbook(excel_file)
+                sheet = workbook.active
+
+                # Headers are in row 3, data starts in row 4
+                header_row = 3
+                data_start_row = 4
+
+                header = [cell.value for cell in sheet[header_row]]
+                expected_headers = [
+                    "LOC NAME", "PARISH NAME", "PARISH ID", "Currency",
+                    "Pay Principal", "Send Principal", "Total Princial", None, # Column H is blank
+                    "PayCount", "SendCount", "Total Num Trans"
+                ]
+
+                # Validate headers (allow for more headers in file than expected)
+                if header[:len(expected_headers)] != expected_headers:
+                    messages.error(request, f"Invalid Excel header. Expected: {expected_headers}. Found: {header}")
+                    return redirect('upload_remote_services_statement')
+
+                rows_data = [] # To store raw data from sheet
+                for row_idx, row_values_only in enumerate(sheet.iter_rows(min_row=data_start_row, values_only=True), start=data_start_row):
+                    if not any(row_values_only[:7]): # Check if essential first few columns are empty
+                        continue
+                    rows_data.append(dict(zip(header, row_values_only)))
+                
+                if not rows_data:
+                    messages.info(request, "The uploaded file appears to have no data rows after the header.")
+                    return redirect('upload_remote_services_statement')
+
+                # Pre-calculate total payout for each location in this upload
+                location_total_payouts = {}
+                for row_dict in rows_data:
+                    loc_name_excel = str(row_dict.get("LOC NAME", "")).strip()
+                    pay_principal_raw = row_dict.get("Pay Principal")
+                    try:
+                        pay_principal = Decimal(str(pay_principal_raw)) if pay_principal_raw is not None else Decimal('0.00')
+                    except InvalidOperation:
+                        pay_principal = Decimal('0.00') # Handle non-decimal values gracefully
+                    
+                    if loc_name_excel:
+                        location_total_payouts[loc_name_excel] = location_total_payouts.get(loc_name_excel, Decimal('0.00')) + pay_principal
+
+                # Process and save each row
+                records_created = 0
+                errors_found = 0
+
+                for row_idx, row_dict in enumerate(rows_data, start=data_start_row):
+                    try:
+                        loc_name_excel = str(row_dict.get("LOC NAME", "")).strip()
+                        if not loc_name_excel:
+                            messages.warning(request, f"Row {row_idx}: Missing LOC NAME. Skipping.")
+                            errors_found += 1
+                            continue
+                        
+                        try:
+                            location_obj = Location.objects.get(remote_services_name__iexact=loc_name_excel)
+                        except Location.DoesNotExist:
+                            messages.warning(request, f"Row {row_idx}: Location with Remote Services name '{loc_name_excel}' not found. Skipping.")
+                            errors_found += 1
+                            continue
+                        except Location.MultipleObjectsReturned:
+                            messages.error(request, f"Row {row_idx}: Multiple locations found matching Remote Services name '{loc_name_excel}'. Please ensure these names are unique in the Location model or update the file. Skipping.")
+                            errors_found += 1
+                            continue
+                        
+                        def get_decimal_from_row(key, default=Decimal('0.00')):
+                            val = row_dict.get(key)
+                            if val is None or str(val).strip() == "":
+                                return default
+                            try:
+                                return Decimal(str(val))
+                            except InvalidOperation:
+                                messages.warning(request, f"Row {row_idx} for '{loc_name_excel}': Invalid decimal value '{val}' for '{key}'. Using default.")
+                                return default
+
+                        def get_int_from_row(key, default=0):
+                            val = row_dict.get(key)
+                            if val is None or str(val).strip() == "":
+                                return default
+                            try:
+                                return int(Decimal(str(val))) # Convert via Decimal to handle float strings like "1.00"
+                            except (ValueError, TypeError, InvalidOperation):
+                                messages.warning(request, f"Row {row_idx} for '{loc_name_excel}': Invalid integer value '{val}' for '{key}'. Using default.")
+                                return default
+
+                        RemoteServicesData.objects.create(
+                            location=location_obj,
+                            statement_date=sheet_statement_date,
+                            parish_name=str(row_dict.get("PARISH NAME", "")).strip(),
+                            parish_id=get_int_from_row("PARISH ID", None), # Allow null for parish_id
+                            currency=str(row_dict.get("Currency", "")).strip(),
+                            pay_principal=get_decimal_from_row("Pay Principal"),
+                            send_principal=get_decimal_from_row("Send Principal"),
+                            total_principal=get_decimal_from_row("Total Princial"), # Note: "Princial" typo matches your spec
+                            pay_count=get_int_from_row("PayCount"),
+                            send_count=get_int_from_row("SendCount"),
+                            total_num_trans=get_int_from_row("Total Num Trans"),
+                            total_payout_for_location_in_upload=location_total_payouts.get(loc_name_excel, Decimal('0.00'))
+                        )
+                        records_created += 1
+
+                    except Exception as e:
+                        messages.error(request, f"Error processing row {row_idx} ('{loc_name_excel}'): {str(e)}. Skipping.")
+                        errors_found += 1
+                        continue
+                
+                if records_created > 0:
+                    messages.success(request, f"Successfully imported {records_created} Remote Services data entries for statement date {sheet_statement_date}.")
+                if errors_found > 0:
+                    messages.warning(request, f"Encountered {errors_found} issues during import. Please review messages.")
+                if records_created == 0 and errors_found == 0 and len(rows_data) > 0:
+                     messages.info(request, "File processed, but no Remote Services data entries were made. Locations might not exist or data might be problematic.")
+
+            except openpyxl.utils.exceptions.InvalidFileException:
+                messages.error(request, "Invalid file format. Please upload a valid Excel file (.xlsx or .xls).")
+            except Exception as e:
+                logger.error(f"Unexpected error during Remote Services upload: {str(e)}", exc_info=True)
+                messages.error(request, f"An unexpected error occurred: {str(e)}")
+            
+            return redirect('upload_remote_services_statement') # Or to a view page if you create one
+    else:
+        form = UploadRemoteServicesStatementForm()
+    
+    context = {
+        'form': form,
+        'title': 'Upload Remote Services Statement',
+        'icon': 'fas fa-satellite-dish', # Example icon
+    }
+    return render(request, 'core/upload_file_form.html', context) # Re-use existing upload form template
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def view_remote_services_statements(request):
+    """View to display all imported Remote Services statements."""
+    remote_services_entries = RemoteServicesData.objects.select_related('location').order_by(
+        '-statement_date', 'location__name', 'currency', 'id'
+    )
+    
+    paginator = Paginator(remote_services_entries, 50)  # Show 50 entries per page
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+        
+    context = {
+        'remote_services_entries': page_obj,
+        'title': 'View All Remote Services Statements',
+        'icon': 'fas fa-concierge-bell', # Example icon
+    }
+    return render(request, 'core/view_remote_services_statements.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def select_upload_type(request):
+    context = {
+        'title': 'Select Statement Type to Upload',
+        'icon': 'fas fa-file-upload',
+    }
+    return render(request, 'core/select_upload_type.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def select_view_type(request):
+    context = {
+        'title': 'Select Statement Type to View',
+        'icon': 'fas fa-eye',
+    }
+    return render(request, 'core/select_view_type.html', context)

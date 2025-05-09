@@ -155,6 +155,67 @@
                 <i class="fas fa-info-circle me-2"></i> No EFT data found for this location.
             </div>
             {% endif %}
+
+            {# Remote Services Information Card #}
+            {% if latest_remote_services_statement_date %}
+            <div class="card detail-card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-satellite-dish me-2"></i>Remote Services Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Latest Statement Date:</strong> {{ latest_remote_services_statement_date|date:"Y-m-d" }}
+                    </p>
+                    <p class="mb-3">
+                        <strong>Total Payout for this Date:</strong> ${{ total_payout_for_latest_remote_upload|floatformat:2 }}
+                    </p>
+                    
+                    {% if latest_remote_services_data_list %}
+                    <p>
+                        <button class="btn btn-info w-100" type="button" data-bs-toggle="collapse" data-bs-target="#remoteServicesDataCollapse" aria-expanded="false" aria-controls="remoteServicesDataCollapse">
+                            <i class="fas fa-eye me-2"></i> View Entries for {{ latest_remote_services_statement_date|date:"Y-m-d" }}
+                        </button>
+                    </p>
+                    <div class="collapse" id="remoteServicesDataCollapse">
+                        <div class="table-responsive remote-services-data-section mt-3">
+                            <table class="table table-bordered table-sm table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Currency</th>
+                                        <th class="text-end">Pay Principal</th>
+                                        <th class="text-end">Send Principal</th>
+                                        <th class="text-end">Total Principal</th>
+                                        <th class="text-center">Pay Count</th>
+                                        <th class="text-center">Send Count</th>
+                                        <th class="text-center">Total Trans</th>
+                                        <th>Parish</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in latest_remote_services_data_list %}
+                                    <tr>
+                                        <td>{{ entry.currency }}</td>
+                                        <td class="text-end">{{ entry.pay_principal|floatformat:2 }}</td>
+                                        <td class="text-end">{{ entry.send_principal|floatformat:2 }}</td>
+                                        <td class="text-end">{{ entry.total_principal|floatformat:2 }}</td>
+                                        <td class="text-center">{{ entry.pay_count }}</td>
+                                        <td class="text-center">{{ entry.send_count }}</td>
+                                        <td class="text-center">{{ entry.total_num_trans }}</td>
+                                        <td>{{ entry.parish_name }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info mt-4" role="alert">
+                <i class="fas fa-info-circle me-2"></i> No Remote Services data found for this location.
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
